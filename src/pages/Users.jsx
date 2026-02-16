@@ -116,7 +116,7 @@ Vérifiez dans votre backend :
     reset({
       nom: user.nom,
       prenom: user.prenom,
-      email: user.email,
+      matricule: user.matricule,
       role: user.role,
       pays: user.pays,
       pointService: user.pointService?._id || user.pointService,
@@ -194,7 +194,7 @@ Vérifiez dans votre backend :
       label: 'Nom',
       render: (row) => `${row.prenom || ''} ${row.nom || ''}`.trim() || 'N/A'
     },
-    { key: 'email', label: 'Email' },
+    { key: 'matricule', label: 'Matricule' },
     {
       key: 'role',
       label: 'Rôle',
@@ -397,18 +397,15 @@ Vérifiez dans votre backend :
               />
 
               <TextField
-                label="Email"
-                type="email"
+                label="Matricule"
+                type="text"
                 fullWidth
-                {...register('email', {
-                  required: 'Email requis',
-                  pattern: {
-                    value: /^[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,}$/i,
-                    message: 'Email invalide'
-                  }
+                {...register('matricule', {
+                  required: 'Matricule requis',
+                  minLength: { value: 2, message: 'Minimum 2 caractères' }
                 })}
-                error={!!errors.email}
-                helperText={errors.email?.message}
+                error={!!errors.matricule}
+                helperText={errors.matricule?.message}
                 sx={{ mb: 2 }}
               />
 

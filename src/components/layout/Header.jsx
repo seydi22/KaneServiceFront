@@ -106,7 +106,7 @@ const Header = () => {
               fontWeight: 500
             }}
           >
-            {user?.name || user?.email}
+            {user?.prenom && user?.nom ? `${user.prenom} ${user.nom}` : user?.matricule}
           </Typography>
           <IconButton
             onClick={handleMenuOpen}
@@ -132,7 +132,7 @@ const Header = () => {
                 boxShadow: 'var(--shadow-sm)'
               }}
             >
-              {user?.name?.[0]?.toUpperCase() || user?.email?.[0]?.toUpperCase()}
+              {user?.prenom?.[0]?.toUpperCase() || user?.nom?.[0]?.toUpperCase() || user?.matricule?.[0]?.toUpperCase()}
             </Avatar>
           </IconButton>
           <Menu

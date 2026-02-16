@@ -111,10 +111,26 @@ icon={<Receipt sx={{ color: 'var(--color-primary)', fontSize: 32 }} />}
           </Grid>
           <Grid item xs={12} sm={6} md={3}>
             <StatCard
-              title="Montant Total"
-              value={data?.totalMontant ? `${new Intl.NumberFormat('fr-FR').format(data.totalMontant)} F CFA` : '0 F CFA'}
-icon={<AttachMoney sx={{ color: 'var(--color-success)', fontSize: 32 }} />}
-                color="var(--color-success)"
+              title="Montant total FCFA"
+              value={
+                data?.montantTotalFcfa != null
+                  ? `${new Intl.NumberFormat('fr-FR').format(data.montantTotalFcfa)} F CFA`
+                  : '0 F CFA'
+              }
+              icon={<AttachMoney sx={{ color: 'var(--color-success)', fontSize: 32 }} />}
+              color="var(--color-success)"
+            />
+          </Grid>
+          <Grid item xs={12} sm={6} md={3}>
+            <StatCard
+              title="Montant total Ouguiya (MRU)"
+              value={
+                data?.montantTotalOuguiya != null
+                  ? `${new Intl.NumberFormat('fr-FR').format(data.montantTotalOuguiya)} MRU`
+                  : '0 MRU'
+              }
+              icon={<AttachMoney sx={{ color: 'var(--color-info)', fontSize: 32 }} />}
+              color="var(--color-info, #2196f3)"
             />
           </Grid>
           <Grid item xs={12} sm={6} md={3}>

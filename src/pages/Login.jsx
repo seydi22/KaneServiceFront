@@ -18,7 +18,7 @@ const Login = () => {
     setLoading(true)
     setError('')
     try {
-      await login(data.email, data.password)
+      await login(data.matricule, data.password)
       const user = JSON.parse(localStorage.getItem('user'))
       if (user?.role === 'admin') {
         navigate('/dashboard/admin')
@@ -126,17 +126,14 @@ const Login = () => {
           <form onSubmit={handleSubmit(onSubmit)}>
             <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2.5 }}>
               <Input
-                label="Email"
-                type="email"
-                {...register('email', {
-                  required: 'Email requis',
-                  pattern: {
-                    value: /^[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,}$/i,
-                    message: 'Email invalide'
-                  }
+                label="Matricule"
+                type="text"
+                {...register('matricule', {
+                  required: 'Matricule requis',
+                  minLength: { value: 2, message: 'Minimum 2 caractères' }
                 })}
-                error={!!errors.email}
-                helperText={errors.email?.message}
+                error={!!errors.matricule}
+                helperText={errors.matricule?.message}
               />
 
               <Input
