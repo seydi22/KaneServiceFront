@@ -95,9 +95,9 @@ const Sidebar = () => {
           variant="h6"
           sx={{
             fontWeight: 700,
-            fontSize: '1.125rem',
-            color: 'var(--color-primary)',
-            letterSpacing: '-0.01em'
+            fontSize: '1rem',
+            color: 'var(--text-primary)',
+            letterSpacing: '-0.02em',
           }}
         >
           Menu
@@ -132,28 +132,28 @@ const Sidebar = () => {
                   }
                 }}
                 sx={{
-                  borderRadius: 'var(--radius-md)',
+                  borderRadius: 'var(--radius-lg)',
                   mb: 0.5,
                   paddingY: 1.25,
                   paddingX: 1.5,
+                  transition: 'background-color 0.15s ease, color 0.15s ease',
                   '&.Mui-selected': {
                     backgroundColor: 'var(--color-primary-50)',
                     borderLeft: '3px solid var(--color-primary)',
                     '& .MuiListItemIcon-root': {
-                      color: 'var(--color-primary)'
+                      color: 'var(--color-primary)',
                     },
                     '& .MuiListItemText-primary': {
                       color: 'var(--color-primary)',
-                      fontWeight: 600
+                      fontWeight: 600,
                     },
                     '&:hover': {
-                      backgroundColor: 'var(--color-primary-100)'
-                    }
+                      backgroundColor: 'var(--color-primary-100)',
+                    },
                   },
                   '&:hover': {
-                    backgroundColor: 'var(--bg-tertiary)'
+                    backgroundColor: 'var(--bg-tertiary)',
                   },
-                  transition: 'all var(--transition-base)'
                 }}
               >
                 <ListItemIcon

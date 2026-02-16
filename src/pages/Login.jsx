@@ -43,20 +43,25 @@ const Login = () => {
         alignItems: 'center',
         justifyContent: 'center',
         backgroundColor: 'var(--bg-secondary)',
-        backgroundImage: 'radial-gradient(circle at 20% 50%, var(--color-primary-50) 0%, transparent 50%), radial-gradient(circle at 80% 80%, var(--color-purple-50) 0%, transparent 50%)',
-        padding: { xs: 2, sm: 3 }
+        backgroundImage: 'radial-gradient(ellipse 80% 50% at 50% -20%, var(--color-primary-50) 0%, transparent 50%)',
+        padding: { xs: 2, sm: 3 },
       }}
     >
       <Container maxWidth="sm">
         <Box
           sx={{
             backgroundColor: 'var(--bg-primary)',
-            padding: { xs: 3, sm: 4, md: 5 },
-            borderRadius: 'var(--radius-xl)',
+            padding: { xs: 3, sm: 4, md: 4.5 },
+            borderRadius: 'var(--radius-2xl)',
             boxShadow: 'var(--shadow-xl)',
             border: '1px solid var(--border-light)',
             position: 'relative',
             overflow: 'hidden',
+            animation: 'cardEnter 0.4s ease-out',
+            '@keyframes cardEnter': {
+              from: { opacity: 0, transform: 'translateY(12px)' },
+              to: { opacity: 1, transform: 'translateY(0)' },
+            },
             '&::before': {
               content: '""',
               position: 'absolute',
@@ -64,22 +69,19 @@ const Login = () => {
               left: 0,
               right: 0,
               height: '4px',
-              background: 'linear-gradient(90deg, var(--color-primary) 0%, var(--color-purple) 100%)'
-            }
+              background: 'var(--color-primary)',
+            },
           }}
         >
           <Box sx={{ textAlign: 'center', marginBottom: 4 }}>
             <Typography
-              variant="h3"
+              variant="h1"
               sx={{
-                fontWeight: 800,
-                fontSize: { xs: '2rem', sm: '2.5rem' },
-                background: 'linear-gradient(135deg, var(--color-primary) 0%, var(--color-purple) 100%)',
-                WebkitBackgroundClip: 'text',
-                WebkitTextFillColor: 'transparent',
-                backgroundClip: 'text',
+                fontWeight: 700,
+                fontSize: { xs: '2rem', sm: '2.25rem' },
+                color: 'var(--color-primary)',
                 marginBottom: 1,
-                letterSpacing: '-0.02em'
+                letterSpacing: '-0.03em',
               }}
             >
               KANE
@@ -89,7 +91,7 @@ const Login = () => {
               sx={{
                 color: 'var(--text-secondary)',
                 fontWeight: 500,
-                fontSize: { xs: '1rem', sm: '1.125rem' }
+                fontSize: { xs: '1rem', sm: '1.0625rem' },
               }}
             >
               Connexion à votre compte
@@ -98,11 +100,11 @@ const Login = () => {
               variant="body2"
               sx={{
                 color: 'var(--text-tertiary)',
-                marginTop: 1,
-                fontSize: '0.875rem'
+                marginTop: 0.75,
+                fontSize: '0.875rem',
               }}
             >
-              Gestion des opérations financières
+              Suivi des opérations financières
             </Typography>
           </Box>
 
@@ -158,10 +160,13 @@ const Login = () => {
                 size="large"
                 sx={{
                   marginTop: 1,
-                  background: 'linear-gradient(135deg, var(--color-primary) 0%, var(--color-primary-dark) 100%)',
+                  backgroundColor: 'var(--color-primary)',
+                  borderRadius: '10px',
+                  py: 1.5,
                   '&:hover': {
-                    background: 'linear-gradient(135deg, var(--color-primary-dark) 0%, var(--color-primary) 100%)'
-                  }
+                    backgroundColor: 'var(--color-primary-dark)',
+                    boxShadow: '0 4px 12px rgba(13, 148, 136, 0.3)',
+                  },
                 }}
               >
                 {loading ? 'Connexion...' : 'Se connecter'}

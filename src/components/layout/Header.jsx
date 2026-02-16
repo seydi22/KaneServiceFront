@@ -35,19 +35,19 @@ const Header = () => {
   return (
     <AppBar
       position="fixed"
+      elevation={0}
       sx={{
         backgroundColor: 'var(--color-primary)',
-        boxShadow: 'var(--shadow-md)',
+        boxShadow: '0 1px 3px rgba(0,0,0,0.06)',
         zIndex: 'var(--z-fixed)',
-        backdropFilter: 'blur(10px)',
-        backgroundImage: 'linear-gradient(135deg, var(--color-primary) 0%, var(--color-primary-dark) 100%)'
+        borderBottom: '1px solid rgba(255,255,255,0.08)',
       }}
     >
       <Toolbar
         sx={{
           minHeight: { xs: '56px', sm: '64px' },
           paddingX: { xs: 2, sm: 3 },
-          justifyContent: 'space-between'
+          justifyContent: 'space-between',
         }}
       >
         <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
@@ -73,8 +73,8 @@ const Header = () => {
             sx={{
               flexGrow: { xs: 1, sm: 0 },
               fontWeight: 700,
-              fontSize: { xs: '1rem', sm: '1.25rem' },
-              letterSpacing: '-0.02em'
+              fontSize: { xs: '1.0625rem', sm: '1.25rem' },
+              letterSpacing: '-0.03em',
             }}
           >
             KANE
@@ -82,12 +82,13 @@ const Header = () => {
               component="span"
               sx={{
                 display: { xs: 'none', sm: 'inline' },
-                ml: 1,
-                fontWeight: 400,
-                opacity: 0.9
+                ml: 1.25,
+                fontWeight: 500,
+                opacity: 0.92,
+                letterSpacing: '-0.01em',
               }}
             >
-              - Suivi Opérations Financières
+              Suivi Opérations Financières
             </Box>
           </Typography>
         </Box>

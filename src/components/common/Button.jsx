@@ -26,13 +26,13 @@ const Button = ({ children, variant = 'contained', color = 'primary', size = 'me
       size={size}
       sx={{
         textTransform: 'none',
-        borderRadius: 'var(--radius-md)',
+        borderRadius: '10px',
         fontWeight: 600,
-        boxShadow: variant === 'contained' ? 'var(--shadow-sm)' : 'none',
-        transition: 'all var(--transition-base)',
+        boxShadow: 'none',
+        transition: 'all 0.2s ease',
         '&:hover': {
-          boxShadow: variant === 'contained' ? 'var(--shadow-md)' : 'none',
-          transform: 'translateY(-1px)'
+          boxShadow: variant === 'contained' ? '0 4px 12px rgba(13, 148, 136, 0.25)' : 'none',
+          transform: 'translateY(-1px)',
         },
         '&:active': {
           transform: 'translateY(0)'

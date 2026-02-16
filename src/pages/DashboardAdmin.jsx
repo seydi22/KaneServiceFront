@@ -100,8 +100,8 @@ const DashboardAdmin = () => {
         </Box>
 
         {/* Cards statistiques */}
-        <Grid container spacing={3} sx={{ mb: 3 }}>
-          <Grid item xs={12} sm={6} md={3}>
+        <Grid container spacing={3} sx={{ mb: 3 }} alignItems="stretch">
+          <Grid item xs={12} sm={6} md={3} sx={{ display: 'flex' }}>
             <StatCard
               title="Total Opérations"
               value={data?.totalOperations || 0}
@@ -109,7 +109,7 @@ icon={<Receipt sx={{ color: 'var(--color-primary)', fontSize: 32 }} />}
                 color="var(--color-primary)"
             />
           </Grid>
-          <Grid item xs={12} sm={6} md={3}>
+          <Grid item xs={12} sm={6} md={3} sx={{ display: 'flex' }}>
             <StatCard
               title="Montant total FCFA"
               value={
@@ -121,7 +121,7 @@ icon={<Receipt sx={{ color: 'var(--color-primary)', fontSize: 32 }} />}
               color="var(--color-success)"
             />
           </Grid>
-          <Grid item xs={12} sm={6} md={3}>
+          <Grid item xs={12} sm={6} md={3} sx={{ display: 'flex' }}>
             <StatCard
               title="Montant total Ouguiya (MRU)"
               value={
@@ -133,7 +133,7 @@ icon={<Receipt sx={{ color: 'var(--color-primary)', fontSize: 32 }} />}
               color="var(--color-info, #2196f3)"
             />
           </Grid>
-          <Grid item xs={12} sm={6} md={3}>
+          <Grid item xs={12} sm={6} md={3} sx={{ display: 'flex' }}>
             <StatCard
               title="Points de Service"
               value={data?.totalPointsService || 0}
@@ -141,7 +141,7 @@ icon={<Business sx={{ color: 'var(--color-warning)', fontSize: 32 }} />}
                 color="var(--color-warning)"
             />
           </Grid>
-          <Grid item xs={12} sm={6} md={3}>
+          <Grid item xs={12} sm={6} md={3} sx={{ display: 'flex' }}>
             <StatCard
               title="Agents Actifs"
               value={data?.totalAgentsActifs || 0}

@@ -5,24 +5,29 @@ const StatCard = ({ title, value, subtitle, trend, icon, color = 'var(--color-pr
   return (
     <Card
       sx={{
+        width: '100%',
         height: '100%',
         borderLeft: `4px solid ${color}`,
         position: 'relative',
         overflow: 'hidden',
+        transition: 'box-shadow 0.2s ease, transform 0.2s ease',
+        '&:hover': {
+          boxShadow: '0 4px 12px rgba(0,0,0,0.06)',
+        },
         '&::before': {
           content: '""',
           position: 'absolute',
           top: 0,
           right: 0,
-          width: '100px',
-          height: '100px',
-          background: `linear-gradient(135deg, ${color}15 0%, transparent 100%)`,
-          borderRadius: '0 0 0 100px',
-          pointerEvents: 'none'
-        }
+          width: '120px',
+          height: '120px',
+          background: `linear-gradient(135deg, ${color}12 0%, transparent 100%)`,
+          borderRadius: '0 0 0 120px',
+          pointerEvents: 'none',
+        },
       }}
     >
-      <CardContent sx={{ position: 'relative', zIndex: 1 }}>
+      <CardContent sx={{ position: 'relative', zIndex: 1, padding: { xs: 2, sm: 2.5 } }}>
         <Box
           sx={{
             display: 'flex',
