@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useMemo } from 'react'
 import {
   Box,
   Typography,
@@ -44,6 +44,17 @@ const Users = () => {
   })
 
   const { register, handleSubmit, formState: { errors }, reset, watch, setValue } = useForm()
+
+  // Points déjà assignés à un autre agent (un point = un agent). En édition, on exclut l'utilisateur en cours.
+  const pointIdsAssignesAutresAgents = useMemo(() => {
+    return new Set(
+      users
+        .filter((u) => u.role === ROLES.AGENT)
+        .filter((u) => !editingUser || (u._id || u.id) !== (editingUser._id || editingUser.id))
+        .map((u) => (u.pointService?._id || u.pointService)?.toString?.())
+        .filter(Boolean)
+    )
+  }, [users, editingUser])
 
   useEffect(() => {
     fetchUsers()
@@ -472,11 +483,20 @@ Vérifiez dans votre backend :
                 sx={{ mb: 2 }}
               >
                 <MenuItem value="">Sélectionner un point</MenuItem>
-                {pointsService.map((point) => (
-                  <MenuItem key={point._id || point.id} value={point._id || point.id}>
-                    {point.nom || point.name} {point.ville ? `(${point.ville})` : ''}
-                  </MenuItem>
-                ))}
+                {pointsService.map((point) => {
+                  const pointId = (point._id || point.id)?.toString?.()
+                  const dejaAssigné = watch('role') === ROLES.AGENT && pointIdsAssignesAutresAgents.has(pointId)
+                  return (
+                    <MenuItem
+                      key={point._id || point.id}
+                      value={point._id || point.id}
+                      disabled={dejaAssigné}
+                    >
+                      {point.nom || point.name} {point.ville ? `(${point.ville})` : ''}
+                      {dejaAssigné ? ' — déjà assigné' : ''}
+                    </MenuItem>
+                  )
+                })}
               </TextField>
 
               <FormControlLabel
