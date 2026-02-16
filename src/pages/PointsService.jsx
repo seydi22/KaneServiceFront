@@ -20,7 +20,8 @@ const PointsService = () => {
     setLoading(true)
     try {
       const response = await pointsServiceService.getAll()
-      setPoints(response.data || response)
+      const list = Array.isArray(response) ? response : (response?.data ?? response)
+      setPoints(Array.isArray(list) ? list : [])
     } catch (error) {
       toast.error('Erreur lors du chargement des points de service')
     } finally {
@@ -45,13 +46,17 @@ const PointsService = () => {
   }
 
   const handleDelete = async (id) => {
+    if (!id) {
+      toast.error('Identifiant du point de service manquant')
+      return
+    }
     if (window.confirm('Êtes-vous sûr de vouloir supprimer ce point de service ?')) {
       try {
         await pointsServiceService.delete(id)
         toast.success('Point de service supprimé avec succès')
         fetchPoints()
       } catch (error) {
-        toast.error('Erreur lors de la suppression')
+        toast.error(error.response?.data?.message || 'Erreur lors de la suppression')
       }
     }
   }
@@ -59,7 +64,8 @@ const PointsService = () => {
   const onSubmit = async (data) => {
     try {
       if (editingPoint) {
-        await pointsServiceService.update(editingPoint.id, data)
+        const id = editingPoint._id || editingPoint.id
+        await pointsServiceService.update(id, data)
         toast.success('Point de service modifié avec succès')
       } else {
         await pointsServiceService.create(data)
@@ -87,7 +93,7 @@ const PointsService = () => {
           <IconButton size="small" onClick={() => handleEdit(row)} color="primary">
             <Edit />
           </IconButton>
-          <IconButton size="small" onClick={() => handleDelete(row.id)} color="error">
+          <IconButton size="small" onClick={() => handleDelete(row._id || row.id)} color="error">
             <Delete />
           </IconButton>
         </Box>
