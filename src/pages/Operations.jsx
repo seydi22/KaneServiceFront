@@ -4,6 +4,7 @@ import { Search, FileDownload, PictureAsPdf } from '@mui/icons-material'
 import { toast } from 'react-toastify'
 import { formatCurrency, formatDateTime } from '../utils/format'
 import { operationsService } from '../services/operations'
+import { reportsService } from '../services/reports'
 import { exportToExcel, exportToPDF } from '../utils/export'
 import { SERVICES, CATEGORIES, CATEGORIES_LABELS, SERVICE_LABELS } from '../constants'
 import Layout from '../components/layout/Layout'
@@ -33,6 +34,11 @@ const Operations = () => {
     recherche: ''
   })
   const [selectedServiceFilter, setSelectedServiceFilter] = useState('')
+  const [listesFiltres, setListesFiltres] = useState({ pointsService: [], agents: [], categories: [] })
+
+  useEffect(() => {
+    reportsService.getFiltres().then(setListesFiltres).catch(() => setListesFiltres({ pointsService: [], agents: [], categories: [] }))
+  }, [])
 
   const fetchOperations = async () => {
     setLoading(true)
@@ -247,16 +253,32 @@ const Operations = () => {
           </TextField>
           <TextField
             label="Point de Service"
+            select
             value={filters.pointService}
             onChange={(e) => setFilters({ ...filters, pointService: e.target.value })}
-            sx={{ minWidth: 200 }}
-          />
+            sx={{ minWidth: 220 }}
+          >
+            <MenuItem value="">Tous</MenuItem>
+            {listesFiltres.pointsService?.map((ps) => (
+              <MenuItem key={ps._id} value={ps._id}>
+                {ps.nom}{ps.ville ? ` - ${ps.ville}` : ''}
+              </MenuItem>
+            ))}
+          </TextField>
           <TextField
             label="Agent"
+            select
             value={filters.agent}
             onChange={(e) => setFilters({ ...filters, agent: e.target.value })}
-            sx={{ minWidth: 200 }}
-          />
+            sx={{ minWidth: 220 }}
+          >
+            <MenuItem value="">Tous</MenuItem>
+            {listesFiltres.agents?.map((a) => (
+              <MenuItem key={a._id} value={a._id}>
+                {a.label ?? `${a.prenom} ${a.nom} (${a.matricule})`}
+              </MenuItem>
+            ))}
+          </TextField>
           <TextField
             label="Service"
             select

@@ -1,8 +1,13 @@
 export const formatCurrency = (amount, currency = 'XOF') => {
-  return new Intl.NumberFormat('fr-FR', {
-    style: 'currency',
-    currency: currency
-  }).format(amount)
+  const num = amount != null && !Number.isNaN(Number(amount)) ? Number(amount) : 0
+  try {
+    return new Intl.NumberFormat('fr-FR', {
+      style: 'currency',
+      currency: currency
+    }).format(num)
+  } catch {
+    return `${new Intl.NumberFormat('fr-FR').format(num)} ${currency === 'MRU' ? 'MRU' : 'F CFA'}`
+  }
 }
 
 export const formatDate = (date) => {
