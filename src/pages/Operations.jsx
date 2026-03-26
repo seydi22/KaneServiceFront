@@ -77,7 +77,11 @@ const Operations = () => {
       const exportData = operations.map(op => {
         // Déterminer le montant à afficher selon le type d'opération
         let montantDisplay = 'N/A'
-        if (op.montantRecu && op.montantEnvoye) {
+        if (op.montantFcfa != null || op.montantOuguiya != null) {
+          const fcfa = op.montantFcfa != null ? `${op.montantFcfa} XOF` : '0 XOF'
+          const mru = op.montantOuguiya != null ? `${op.montantOuguiya} MRU` : '0 MRU'
+          montantDisplay = `FCFA: ${fcfa} | Ouguiya: ${mru}`
+        } else if (op.montantRecu && op.montantEnvoye) {
           montantDisplay = `Reçu: ${op.montantRecu} ${op.deviseRecu || 'XOF'} | Envoyé: ${op.montantEnvoye} ${op.deviseEnvoye || 'XOF'}`
         } else if (op.montant) {
           montantDisplay = `${op.montant} ${op.devise || 'XOF'}`
@@ -115,7 +119,11 @@ const Operations = () => {
       const exportData = operations.map(op => {
         // Déterminer le montant à afficher selon le type d'opération
         let montantDisplay = 'N/A'
-        if (op.montantRecu && op.montantEnvoye) {
+        if (op.montantFcfa != null || op.montantOuguiya != null) {
+          const fcfa = op.montantFcfa != null ? `${op.montantFcfa} XOF` : '0 XOF'
+          const mru = op.montantOuguiya != null ? `${op.montantOuguiya} MRU` : '0 MRU'
+          montantDisplay = `FCFA: ${fcfa} | Ouguiya: ${mru}`
+        } else if (op.montantRecu && op.montantEnvoye) {
           montantDisplay = `Reçu: ${op.montantRecu} ${op.deviseRecu || 'XOF'} | Envoyé: ${op.montantEnvoye} ${op.deviseEnvoye || 'XOF'}`
         } else if (op.montant) {
           montantDisplay = `${op.montant} ${op.devise || 'XOF'}`
@@ -163,7 +171,11 @@ const Operations = () => {
       label: 'Montant',
       render: (row) => {
         if (!row) return 'N/A'
-        if (row.montantRecu && row.montantEnvoye) {
+        if (row.montantFcfa != null || row.montantOuguiya != null) {
+          const fcfa = row.montantFcfa != null ? `${row.montantFcfa} XOF` : '0 XOF'
+          const mru = row.montantOuguiya != null ? `${row.montantOuguiya} MRU` : '0 MRU'
+          return `FCFA: ${fcfa} | Ouguiya: ${mru}`
+        } else if (row.montantRecu && row.montantEnvoye) {
           return `${row.montantRecu} ${row.deviseRecu || 'XOF'} → ${row.montantEnvoye} ${row.deviseEnvoye || 'XOF'}`
         } else if (row.montant) {
           return `${row.montant} ${row.devise || 'XOF'}`

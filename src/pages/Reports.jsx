@@ -69,6 +69,7 @@ const Reports = () => {
           statsParAgent: data?.statsParAgent ?? [],
           statsParPointService: data?.statsParPointService ?? [],
           statsParCategorie: data?.statsParCategorie ?? [],
+          alimentationParPointService: data?.alimentationParPointService ?? [],
           operations: data?.operations ?? [],
           periode: data?.date ?? data?.periode
         },
@@ -94,7 +95,11 @@ const Reports = () => {
       ]
       const exportData = data?.operations?.map(op => {
         let montantDisplay = 'N/A'
-        if (op.montantRecu != null && op.montantEnvoye != null) {
+        if (op.montantFcfa != null || op.montantOuguiya != null) {
+          const fcfa = op.montantFcfa != null ? `${op.montantFcfa} XOF` : '0 XOF'
+          const mru = op.montantOuguiya != null ? `${op.montantOuguiya} MRU` : '0 MRU'
+          montantDisplay = `FCFA: ${fcfa} | Ouguiya: ${mru}`
+        } else if (op.montantRecu != null && op.montantEnvoye != null) {
           montantDisplay = `Reçu: ${op.montantRecu} ${op.deviseRecu || 'XOF'} | Envoyé: ${op.montantEnvoye} ${op.deviseEnvoye || 'XOF'}`
         } else if (op.montant != null) {
           montantDisplay = `${op.montant} ${op.devise || 'XOF'}`

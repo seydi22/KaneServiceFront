@@ -9,6 +9,7 @@ import Operations from '../pages/Operations'
 import Reports from '../pages/Reports'
 import PointsService from '../pages/PointsService'
 import Users from '../pages/Users'
+import Alimentations from '../pages/Alimentations'
 
 const AppRoutes = () => {
   const { isAuthenticated, isAdmin, isAgent, loading } = useAuth()
@@ -85,6 +86,14 @@ const AppRoutes = () => {
         element={
           <ProtectedRoute adminOnly>
             <Users />
+          </ProtectedRoute>
+        }
+      />
+      <Route
+        path="/alimentations"
+        element={
+          <ProtectedRoute adminOnly>
+            <Alimentations />
           </ProtectedRoute>
         }
       />

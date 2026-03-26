@@ -167,6 +167,42 @@ export const exportReportToExcelMultiSheets = async (reportData, filename = 'rap
     })
   }
 
+  // —— Feuille Alimentation (par point de service) ——
+  if (reportData.alimentationParPointService?.length) {
+    const wsAlim = workbook.addWorksheet('Alimentation (PS)', { views: [{ showGridLines: true }] })
+    ;[22, 14, 12, 16, 16, 16, 16, 16, 16].forEach((w, i) => { wsAlim.getColumn(i + 1).width = w })
+    wsAlim.addRow(['Alimentation / Retraits / Reste par point de service']).font = TITLE_FONT
+    if (periodLabel) wsAlim.addRow([`Période : ${periodLabel}`]).font = SUBTITLE_FONT
+    wsAlim.addRow([])
+    const head = wsAlim.addRow([
+      'Point de service', 'Ville', 'Pays',
+      'Alimenté FCFA', 'Alimenté Ouguiya',
+      'Retrait FCFA', 'Retrait Ouguiya',
+      'Reste FCFA', 'Reste Ouguiya'
+    ])
+    styleHeaderRow(head)
+    reportData.alimentationParPointService.forEach((p, idx) => {
+      const row = wsAlim.addRow([
+        p.nom ?? '-',
+        p.ville ?? '-',
+        p.pays ?? '-',
+        p.alimenteFcfa ?? 0,
+        p.alimenteOuguiya ?? 0,
+        p.retraitFcfa ?? 0,
+        p.retraitOuguiya ?? 0,
+        p.resteFcfa ?? 0,
+        p.resteOuguiya ?? 0
+      ])
+      const fill = idx % 2 === 1 ? 'FFF8FAFC' : 'FFFFFFFF'
+      row.eachCell((cell, colNumber) => {
+        cell.border = THIN_BORDER
+        cell.fill = { type: 'pattern', pattern: 'solid', fgColor: { argb: fill } }
+        if ([4, 6, 8].includes(colNumber)) cell.numFmt = '#,##0 \"F CFA\"'
+        if ([5, 7, 9].includes(colNumber)) cell.numFmt = '#,##0 \"MRU\"'
+      })
+    })
+  }
+
   // —— Feuille Par catégorie ——
   if (reportData.statsParCategorie?.length) {
     const wsCat = workbook.addWorksheet('Par catégorie', { views: [{ showGridLines: true }] })
@@ -201,7 +237,11 @@ export const exportReportToExcelMultiSheets = async (reportData, filename = 'rap
     styleHeaderRow(opHeader)
     reportData.operations.forEach((op, idx) => {
       let montantDisplay = 'N/A'
-      if (op.montantRecu != null && op.montantEnvoye != null) {
+      if (op.montantFcfa != null || op.montantOuguiya != null) {
+        const fcfa = op.montantFcfa != null ? `${op.montantFcfa} XOF` : '0 XOF'
+        const mru = op.montantOuguiya != null ? `${op.montantOuguiya} MRU` : '0 MRU'
+        montantDisplay = `FCFA: ${fcfa} | Ouguiya: ${mru}`
+      } else if (op.montantRecu != null && op.montantEnvoye != null) {
         montantDisplay = `Reçu: ${op.montantRecu} ${op.deviseRecu || 'XOF'} | Envoyé: ${op.montantEnvoye} ${op.deviseEnvoye || 'XOF'}`
       } else if (op.montant != null) {
         montantDisplay = `${op.montant} ${op.devise || 'XOF'}`
@@ -224,6 +264,27 @@ export const exportReportToExcelMultiSheets = async (reportData, filename = 'rap
         cell.border = THIN_BORDER
         cell.fill = { type: 'pattern', pattern: 'solid', fgColor: { argb: fill } }
         cell.alignment = { wrapText: true, vertical: 'middle' }
+      })
+    })
+  }
+
+  // —— Section résumé par point de service dans la feuille Résumé (optionnel) ——
+  if (reportData.statsParPointService?.length) {
+    wsResume.addRow([])
+    const sectionTitle = wsResume.addRow(['Résumé par point de service'])
+    sectionTitle.font = { bold: true, size: 12 }
+    wsResume.mergeCells(`A${sectionTitle.number}:C${sectionTitle.number}`)
+
+    const psHeader = wsResume.addRow(['Point de service', 'Total FCFA', 'Total Ouguiya'])
+    styleHeaderRow(psHeader)
+    reportData.statsParPointService.forEach((p, idx) => {
+      const row = wsResume.addRow([p.nom ?? '-', p.totalFcfa ?? 0, p.totalOuguiya ?? 0])
+      const fill = idx % 2 === 1 ? 'FFF8FAFC' : 'FFFFFFFF'
+      row.eachCell((cell, colNumber) => {
+        cell.border = THIN_BORDER
+        cell.fill = { type: 'pattern', pattern: 'solid', fgColor: { argb: fill } }
+        if (colNumber === 2) cell.numFmt = '#,##0 "F CFA"'
+        if (colNumber === 3) cell.numFmt = '#,##0 "MRU"'
       })
     })
   }

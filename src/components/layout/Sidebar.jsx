@@ -18,6 +18,7 @@ import {
   Assessment,
   Business,
   People,
+  AccountBalance,
   ChevronLeft
 } from '@mui/icons-material'
 import { useNavigate, useLocation } from 'react-router-dom'
@@ -55,6 +56,11 @@ const Sidebar = () => {
             text: 'Utilisateurs',
             icon: <People />,
             path: '/users'
+          },
+          {
+            text: 'Alimentations',
+            icon: <AccountBalance />,
+            path: '/alimentations'
           }
         ]
       : []),
