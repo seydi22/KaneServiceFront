@@ -4,7 +4,7 @@ import { FileDownload, PictureAsPdf } from '@mui/icons-material'
 import { toast } from 'react-toastify'
 import { formatCurrency } from '../utils/format'
 import { reportsService } from '../services/reports'
-import { exportToPDF, exportReportToExcelMultiSheets } from '../utils/export'
+import { exportReportToPDF, exportReportToExcelMultiSheets } from '../utils/export'
 import Layout from '../components/layout/Layout'
 import StatCard from '../components/dashboard/StatCard'
 import { LineChartCard, BarChartCard, PieChartCard } from '../components/dashboard/Charts'
@@ -69,7 +69,7 @@ const Reports = () => {
           statsParAgent: data?.statsParAgent ?? [],
           statsParPointService: data?.statsParPointService ?? [],
           statsParCategorie: data?.statsParCategorie ?? [],
-          alimentationParPointService: data?.alimentationParPointService ?? [],
+          caisseParPointService: data?.caisseParPointService ?? [],
           operations: data?.operations ?? [],
           periode: data?.date ?? data?.periode
         },
@@ -83,40 +83,17 @@ const Reports = () => {
 
   const handleExportPDF = () => {
     try {
-      const columns = [
-        { key: 'date', label: 'Date' },
-        { key: 'service', label: 'Service' },
-        { key: 'categorie', label: 'Catégorie' },
-        { key: 'montant', label: 'Montant' },
-        { key: 'agent', label: 'Agent' },
-        { key: 'matricule', label: 'Matricule' },
-        { key: 'pointService', label: 'Point Service' },
-        { key: 'pays', label: 'Pays' }
-      ]
-      const exportData = data?.operations?.map(op => {
-        let montantDisplay = 'N/A'
-        if (op.montantFcfa != null || op.montantOuguiya != null) {
-          const fcfa = op.montantFcfa != null ? `${op.montantFcfa} XOF` : '0 XOF'
-          const mru = op.montantOuguiya != null ? `${op.montantOuguiya} MRU` : '0 MRU'
-          montantDisplay = `FCFA: ${fcfa} | Ouguiya: ${mru}`
-        } else if (op.montantRecu != null && op.montantEnvoye != null) {
-          montantDisplay = `Reçu: ${op.montantRecu} ${op.deviseRecu || 'XOF'} | Envoyé: ${op.montantEnvoye} ${op.deviseEnvoye || 'XOF'}`
-        } else if (op.montant != null) {
-          montantDisplay = `${op.montant} ${op.devise || 'XOF'}`
-        }
-        const agentLabel = op.agent ? [op.agent.prenom, op.agent.nom].filter(Boolean).join(' ') : '-'
-        return {
-          date: op.dateOperation ? new Date(op.dateOperation).toLocaleString('fr-FR') : '-',
-          service: op.service,
-          categorie: op.categorie,
-          montant: montantDisplay,
-          agent: agentLabel,
-          matricule: op.agent?.matricule ?? '-',
-          pointService: op.pointService?.nom ?? '-',
-          pays: op.pays
-        }
-      }) || []
-      exportToPDF(exportData, columns, `rapport-${tab === 0 ? 'journalier' : tab === 1 ? 'hebdomadaire' : 'mensuel'}`)
+      exportReportToPDF(
+        {
+          totalOperations: data?.totalOperations ?? data?.stats?.totalOperations ?? data?.statsGlobales?.totalOperations ?? 0,
+          montantTotalFcfa: data?.montantTotalFcfa ?? data?.stats?.totalFcfa ?? data?.statsGlobales?.totalFcfa ?? 0,
+          montantTotalOuguiya: data?.montantTotalOuguiya ?? data?.stats?.totalOuguiya ?? data?.statsGlobales?.totalOuguiya ?? 0,
+          caisseParPointService: data?.caisseParPointService ?? [],
+          operations: data?.operations ?? [],
+          periode: data?.date ?? data?.periode,
+        },
+        `rapport-${tab === 0 ? 'journalier' : tab === 1 ? 'hebdomadaire' : 'mensuel'}`
+      )
       toast.success('Export PDF réussi !')
     } catch (error) {
       toast.error('Erreur lors de l\'export PDF')

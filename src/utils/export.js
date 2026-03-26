@@ -167,31 +167,31 @@ export const exportReportToExcelMultiSheets = async (reportData, filename = 'rap
     })
   }
 
-  // —— Feuille Alimentation (par point de service) ——
-  if (reportData.alimentationParPointService?.length) {
-    const wsAlim = workbook.addWorksheet('Alimentation (PS)', { views: [{ showGridLines: true }] })
-    ;[22, 14, 12, 16, 16, 16, 16, 16, 16].forEach((w, i) => { wsAlim.getColumn(i + 1).width = w })
-    wsAlim.addRow(['Alimentation / Retraits / Reste par point de service']).font = TITLE_FONT
-    if (periodLabel) wsAlim.addRow([`Période : ${periodLabel}`]).font = SUBTITLE_FONT
-    wsAlim.addRow([])
-    const head = wsAlim.addRow([
+  // —— Feuille Caisse (par point de service) ——
+  if (reportData.caisseParPointService?.length) {
+    const wsCaisse = workbook.addWorksheet('Caisse (PS)', { views: [{ showGridLines: true }] })
+    ;[22, 14, 12, 18, 18, 18, 18, 18, 18].forEach((w, i) => { wsCaisse.getColumn(i + 1).width = w })
+    wsCaisse.addRow(['Caisse de fin de journée par point de service']).font = TITLE_FONT
+    if (periodLabel) wsCaisse.addRow([`Période : ${periodLabel}`]).font = SUBTITLE_FONT
+    wsCaisse.addRow([])
+    const head = wsCaisse.addRow([
       'Point de service', 'Ville', 'Pays',
-      'Alimenté FCFA', 'Alimenté Ouguiya',
-      'Retrait FCFA', 'Retrait Ouguiya',
-      'Reste FCFA', 'Reste Ouguiya'
+      'Solde initial FCFA', 'Solde initial Ouguiya',
+      'Total transactions FCFA', 'Total transactions Ouguiya',
+      'Solde final FCFA', 'Solde final Ouguiya'
     ])
     styleHeaderRow(head)
-    reportData.alimentationParPointService.forEach((p, idx) => {
-      const row = wsAlim.addRow([
+    reportData.caisseParPointService.forEach((p, idx) => {
+      const row = wsCaisse.addRow([
         p.nom ?? '-',
         p.ville ?? '-',
         p.pays ?? '-',
-        p.alimenteFcfa ?? 0,
-        p.alimenteOuguiya ?? 0,
-        p.retraitFcfa ?? 0,
-        p.retraitOuguiya ?? 0,
-        p.resteFcfa ?? 0,
-        p.resteOuguiya ?? 0
+        p.soldeInitialFcfa ?? 0,
+        p.soldeInitialOuguiya ?? 0,
+        p.totalTransactionsFcfa ?? 0,
+        p.totalTransactionsOuguiya ?? 0,
+        p.soldeFinalFcfa ?? 0,
+        p.soldeFinalOuguiya ?? 0
       ])
       const fill = idx % 2 === 1 ? 'FFF8FAFC' : 'FFFFFFFF'
       row.eachCell((cell, colNumber) => {
@@ -312,6 +312,103 @@ export const exportToPDF = (data, columns, filename = 'export') => {
     headStyles: { fillColor: [37, 99, 235] },
     margin: { left: 10, right: 10 },
   })
+
+  doc.save(`${filename}.pdf`)
+}
+
+// Rapport PDF complet (résumé + caisse par point de service + opérations)
+export const exportReportToPDF = (reportData, filename = 'rapport') => {
+  const doc = new jsPDF({ unit: 'pt', format: 'a4' })
+  const periodLabel = formatPeriod(reportData)
+
+  doc.setFontSize(14)
+  doc.text('RAPPORT D’OPÉRATIONS', 40, 40)
+  doc.setFontSize(10)
+  if (periodLabel) doc.text(`Période : ${periodLabel}`, 40, 58)
+
+  const totalOps = reportData.totalOperations ?? 0
+  const totalFcfa = reportData.montantTotalFcfa ?? 0
+  const totalOuguiya = reportData.montantTotalOuguiya ?? 0
+
+  autoTable(doc, {
+    startY: 72,
+    head: [['Résumé', 'FCFA (XOF)', 'Ouguiya (MRU)']],
+    body: [
+      ['Total opérations', String(totalOps), ''],
+      ['Total', String(totalFcfa), String(totalOuguiya)],
+    ],
+    styles: { fontSize: 9 },
+    headStyles: { fillColor: [30, 58, 95] },
+    margin: { left: 40, right: 40 },
+  })
+
+  // Caisse par point de service
+  const caisse = Array.isArray(reportData.caisseParPointService) ? reportData.caisseParPointService : []
+  if (caisse.length) {
+    autoTable(doc, {
+      startY: doc.lastAutoTable.finalY + 16,
+      head: [[
+        'Point de service', 'Ville', 'Pays',
+        'Solde initial FCFA', 'Solde initial Ouguiya',
+        'Total transactions FCFA', 'Total transactions Ouguiya',
+        'Solde final FCFA', 'Solde final Ouguiya'
+      ]],
+      body: caisse.map((p) => ([
+        p.nom ?? '-',
+        p.ville ?? '-',
+        p.pays ?? '-',
+        String(p.soldeInitialFcfa ?? 0),
+        String(p.soldeInitialOuguiya ?? 0),
+        String(p.totalTransactionsFcfa ?? 0),
+        String(p.totalTransactionsOuguiya ?? 0),
+        String(p.soldeFinalFcfa ?? 0),
+        String(p.soldeFinalOuguiya ?? 0),
+      ])),
+      styles: { fontSize: 8 },
+      headStyles: { fillColor: [37, 99, 235] },
+      margin: { left: 40, right: 40 },
+      theme: 'striped',
+    })
+  }
+
+  // Détail des opérations
+  const ops = Array.isArray(reportData.operations) ? reportData.operations : []
+  if (ops.length) {
+    autoTable(doc, {
+      startY: doc.lastAutoTable.finalY + 16,
+      head: [[
+        'Date', 'Service', 'Catégorie', 'Montant',
+        'Agent', 'Matricule', 'Point de service', 'Pays'
+      ]],
+      body: ops.map((op) => {
+        let montantDisplay = 'N/A'
+        if (op.montantFcfa != null || op.montantOuguiya != null) {
+          const fcfa = op.montantFcfa != null ? `${op.montantFcfa} XOF` : '0 XOF'
+          const mru = op.montantOuguiya != null ? `${op.montantOuguiya} MRU` : '0 MRU'
+          montantDisplay = `FCFA: ${fcfa} | Ouguiya: ${mru}`
+        } else if (op.montantRecu != null && op.montantEnvoye != null) {
+          montantDisplay = `Reçu: ${op.montantRecu} ${op.deviseRecu || 'XOF'} | Envoyé: ${op.montantEnvoye} ${op.deviseEnvoye || 'XOF'}`
+        } else if (op.montant != null) {
+          montantDisplay = `${op.montant} ${op.devise || 'XOF'}`
+        }
+        const agent = op.agent ? [op.agent.prenom, op.agent.nom].filter(Boolean).join(' ') : '-'
+        return [
+          op.dateOperation ? new Date(op.dateOperation).toLocaleString('fr-FR') : '-',
+          op.service ?? '-',
+          op.categorie ?? '-',
+          montantDisplay,
+          agent,
+          op.agent?.matricule ?? '-',
+          op.pointService?.nom ?? '-',
+          op.pays ?? '-',
+        ]
+      }),
+      styles: { fontSize: 7 },
+      headStyles: { fillColor: [30, 58, 95] },
+      margin: { left: 40, right: 40 },
+      theme: 'striped',
+    })
+  }
 
   doc.save(`${filename}.pdf`)
 }
