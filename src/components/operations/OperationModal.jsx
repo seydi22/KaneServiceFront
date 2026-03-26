@@ -18,6 +18,8 @@ const OperationModal = ({ open, onClose, onSuccess }) => {
       montant: '',
       montantRecu: '',
       montantEnvoye: '',
+      montantFcfa: '',
+      montantOuguiya: '',
       devise: '',
       deviseRecu: '',
       deviseEnvoye: '',
@@ -30,6 +32,9 @@ const OperationModal = ({ open, onClose, onSuccess }) => {
   
   // Déterminer si la catégorie nécessite montantRecu/montantEnvoye ou montant
   const requiresTransferFields = categorie && CATEGORIES_WITH_TRANSFER.includes(categorie)
+  const requiresDualCurrencyFields =
+    (service === SERVICES.ORANGE_MONEY || service === SERVICES.WAVE) &&
+    (categorie === 'Transfert' || categorie === 'Retrait')
   
   useEffect(() => {
     if (service) {
@@ -39,6 +44,8 @@ const OperationModal = ({ open, onClose, onSuccess }) => {
       setValue('montant', '')
       setValue('montantRecu', '')
       setValue('montantEnvoye', '')
+      setValue('montantFcfa', '')
+      setValue('montantOuguiya', '')
       setValue('devise', '')
       setValue('deviseRecu', '')
       setValue('deviseEnvoye', '')
@@ -50,7 +57,16 @@ const OperationModal = ({ open, onClose, onSuccess }) => {
   useEffect(() => {
     // Réinitialiser les champs de montant quand la catégorie change
     if (categorie) {
-      if (requiresTransferFields) {
+      if (requiresDualCurrencyFields) {
+        setValue('montant', '')
+        setValue('montantRecu', '')
+        setValue('montantEnvoye', '')
+        setValue('devise', '')
+        setValue('deviseRecu', '')
+        setValue('deviseEnvoye', '')
+      } else if (requiresTransferFields) {
+        setValue('montantFcfa', '')
+        setValue('montantOuguiya', '')
         setValue('montant', '')
         setValue('devise', '')
         // Définir les devises par défaut selon le type de transfert
@@ -66,11 +82,13 @@ const OperationModal = ({ open, onClose, onSuccess }) => {
         setValue('montantEnvoye', '')
         setValue('deviseRecu', '')
         setValue('deviseEnvoye', '')
+        setValue('montantFcfa', '')
+        setValue('montantOuguiya', '')
         // Pour les autres catégories, définir XOF par défaut
         setValue('devise', 'XOF')
       }
     }
-  }, [categorie, requiresTransferFields, setValue])
+  }, [categorie, requiresTransferFields, requiresDualCurrencyFields, setValue])
 
   const onSubmit = async (data) => {
     setLoading(true)
@@ -83,7 +101,10 @@ const OperationModal = ({ open, onClose, onSuccess }) => {
       }
 
       // Ajouter les champs appropriés selon la catégorie
-      if (requiresTransferFields) {
+      if (requiresDualCurrencyFields) {
+        operationData.montantFcfa = parseFloat(data.montantFcfa)
+        operationData.montantOuguiya = parseFloat(data.montantOuguiya)
+      } else if (requiresTransferFields) {
         operationData.montantRecu = parseFloat(data.montantRecu)
         operationData.deviseRecu = data.deviseRecu
         operationData.montantEnvoye = parseFloat(data.montantEnvoye)
@@ -170,7 +191,34 @@ const OperationModal = ({ open, onClose, onSuccess }) => {
         </TextField>
 
         {/* Champs conditionnels selon la catégorie */}
-        {requiresTransferFields ? (
+        {requiresDualCurrencyFields ? (
+          <>
+            <TextField
+              label="Montant FCFA (XOF)"
+              type="number"
+              fullWidth
+              {...register('montantFcfa', {
+                required: 'Montant FCFA requis',
+                min: { value: 0, message: 'Montant doit être positif' }
+              })}
+              error={!!errors.montantFcfa}
+              helperText={errors.montantFcfa?.message}
+              sx={{ mb: 2 }}
+            />
+            <TextField
+              label="Montant Ouguiya (MRU)"
+              type="number"
+              fullWidth
+              {...register('montantOuguiya', {
+                required: 'Montant Ouguiya requis',
+                min: { value: 0, message: 'Montant doit être positif' }
+              })}
+              error={!!errors.montantOuguiya}
+              helperText={errors.montantOuguiya?.message}
+              sx={{ mb: 2 }}
+            />
+          </>
+        ) : requiresTransferFields ? (
           <>
             <TextField
               label="Montant Reçu"

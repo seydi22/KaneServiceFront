@@ -8,14 +8,16 @@ export const SERVICES = {
 }
 
 export const CATEGORIES = {
-  [SERVICES.ORANGE_MONEY]: ['Transfert_FCFA_to_Ouguiya', 'Transfert_Ouguiya_to_FCFA', 'Retrait'],
-  [SERVICES.WAVE]: ['Transfert_FCFA_to_Ouguiya', 'Transfert_Ouguiya_to_FCFA', 'Retrait'],
+  // Orange Money & Wave : catégories simplifiées
+  [SERVICES.ORANGE_MONEY]: ['Transfert', 'Retrait'],
+  [SERVICES.WAVE]: ['Transfert', 'Retrait'],
   [SERVICES.CHANGE]: ['FCFA_to_Ouguiya', 'Ouguiya_to_FCFA'],
   [SERVICES.CANAL_PLUS]: ['Nouveau_Abonnement', 'Paiement_Facture']
 }
 
 // Catégories qui nécessitent montantRecu, montantEnvoye, deviseRecu et deviseEnvoye
 export const CATEGORIES_WITH_TRANSFER = [
+  // Change & ancien modèle (conservé pour compatibilité)
   'Transfert_FCFA_to_Ouguiya',
   'Transfert_Ouguiya_to_FCFA',
   'FCFA_to_Ouguiya',
@@ -23,6 +25,7 @@ export const CATEGORIES_WITH_TRANSFER = [
 ]
 
 export const CATEGORIES_LABELS = {
+  'Transfert': 'Transfert',
   'Transfert_FCFA_to_Ouguiya': 'Transfert FCFA → Ouguiya',
   'Transfert_Ouguiya_to_FCFA': 'Transfert Ouguiya → FCFA',
   'Retrait': 'Retrait',
