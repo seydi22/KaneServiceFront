@@ -86,6 +86,11 @@ const DashboardAgent = () => {
       label: 'Montant',
       render: (row) => {
         if (!row) return 'N/A'
+        if (row.montantFcfa != null || row.montantOuguiya != null) {
+          const fcfa = row.montantFcfa != null ? `${row.montantFcfa} XOF` : '0 XOF'
+          const mru = row.montantOuguiya != null ? `${row.montantOuguiya} MRU` : '0 MRU'
+          return `FCFA: ${fcfa} | Ouguiya: ${mru}`
+        }
         if (row.montantRecu && row.montantEnvoye) {
           return `${row.montantRecu} ${row.deviseRecu || 'XOF'} → ${row.montantEnvoye} ${row.deviseEnvoye || 'XOF'}`
         } else if (row.montant) {

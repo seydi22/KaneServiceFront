@@ -167,38 +167,63 @@ export const exportReportToExcelMultiSheets = async (reportData, filename = 'rap
     })
   }
 
-  // —— Feuille Caisse (par point de service) ——
-  if (reportData.caisseParPointService?.length) {
-    const wsCaisse = workbook.addWorksheet('Caisse (PS)', { views: [{ showGridLines: true }] })
-    ;[22, 14, 12, 18, 18, 18, 18, 18, 18].forEach((w, i) => { wsCaisse.getColumn(i + 1).width = w })
-    wsCaisse.addRow(['Caisse de fin de journée par point de service']).font = TITLE_FONT
+  // —— Feuille Caisse (Globale) ——
+  if (reportData.caisseGlobale) {
+    const wsCaisse = workbook.addWorksheet('Caisse (Globale)', { views: [{ showGridLines: true }] })
+    ;[26, 18, 18].forEach((w, i) => { wsCaisse.getColumn(i + 1).width = w })
+    wsCaisse.addRow(['Caisse globale (compte partagé)']).font = TITLE_FONT
     if (periodLabel) wsCaisse.addRow([`Période : ${periodLabel}`]).font = SUBTITLE_FONT
     wsCaisse.addRow([])
-    const head = wsCaisse.addRow([
+    const head = wsCaisse.addRow(['Indicateur', 'FCFA', 'Ouguiya'])
+    styleHeaderRow(head)
+    const g = reportData.caisseGlobale
+    const lines = [
+      ['Solde initial (alimentation)', g.soldeInitialFcfa ?? 0, g.soldeInitialOuguiya ?? 0],
+      ['Total transactions (sorties)', g.totalTransactionsFcfa ?? 0, g.totalTransactionsOuguiya ?? 0],
+      ['Volume (a circulé)', g.volumeFcfa ?? 0, g.volumeOuguiya ?? 0],
+      ['Solde final', g.soldeFinalFcfa ?? 0, g.soldeFinalOuguiya ?? 0],
+    ]
+    lines.forEach((arr, idx) => {
+      const row = wsCaisse.addRow(arr)
+      const fill = idx % 2 === 1 ? 'FFF8FAFC' : 'FFFFFFFF'
+      row.eachCell((cell, colNumber) => {
+        cell.border = THIN_BORDER
+        cell.fill = { type: 'pattern', pattern: 'solid', fgColor: { argb: fill } }
+        if (colNumber === 2) cell.numFmt = '#,##0 \"F CFA\"'
+        if (colNumber === 3) cell.numFmt = '#,##0 \"MRU\"'
+      })
+    })
+  }
+
+  // —— Feuille Mouvements (par point de service) ——
+  if (reportData.mouvementsParPointService?.length) {
+    const wsMv = workbook.addWorksheet('Mouvements (PS)', { views: [{ showGridLines: true }] })
+    ;[22, 14, 12, 18, 18, 18, 18].forEach((w, i) => { wsMv.getColumn(i + 1).width = w })
+    wsMv.addRow(['Mouvements par point de service (caisse partagée)']).font = TITLE_FONT
+    if (periodLabel) wsMv.addRow([`Période : ${periodLabel}`]).font = SUBTITLE_FONT
+    wsMv.addRow([])
+    const head = wsMv.addRow([
       'Point de service', 'Ville', 'Pays',
-      'Solde initial FCFA', 'Solde initial Ouguiya',
-      'Total transactions FCFA', 'Total transactions Ouguiya',
-      'Solde final FCFA', 'Solde final Ouguiya'
+      'Volume FCFA', 'Volume Ouguiya',
+      'Transactions FCFA (sorties)', 'Transactions Ouguiya (sorties)'
     ])
     styleHeaderRow(head)
-    reportData.caisseParPointService.forEach((p, idx) => {
-      const row = wsCaisse.addRow([
+    reportData.mouvementsParPointService.forEach((p, idx) => {
+      const row = wsMv.addRow([
         p.nom ?? '-',
         p.ville ?? '-',
         p.pays ?? '-',
-        p.soldeInitialFcfa ?? 0,
-        p.soldeInitialOuguiya ?? 0,
+        p.volumeFcfa ?? 0,
+        p.volumeOuguiya ?? 0,
         p.totalTransactionsFcfa ?? 0,
         p.totalTransactionsOuguiya ?? 0,
-        p.soldeFinalFcfa ?? 0,
-        p.soldeFinalOuguiya ?? 0
       ])
       const fill = idx % 2 === 1 ? 'FFF8FAFC' : 'FFFFFFFF'
       row.eachCell((cell, colNumber) => {
         cell.border = THIN_BORDER
         cell.fill = { type: 'pattern', pattern: 'solid', fgColor: { argb: fill } }
-        if ([4, 6, 8].includes(colNumber)) cell.numFmt = '#,##0 \"F CFA\"'
-        if ([5, 7, 9].includes(colNumber)) cell.numFmt = '#,##0 \"MRU\"'
+        if ([4, 6].includes(colNumber)) cell.numFmt = '#,##0 \"F CFA\"'
+        if ([5, 7].includes(colNumber)) cell.numFmt = '#,##0 \"MRU\"'
       })
     })
   }
@@ -342,27 +367,43 @@ export const exportReportToPDF = (reportData, filename = 'rapport') => {
     margin: { left: 40, right: 40 },
   })
 
-  // Caisse par point de service
-  const caisse = Array.isArray(reportData.caisseParPointService) ? reportData.caisseParPointService : []
-  if (caisse.length) {
+  // Caisse globale (compte partagé)
+  if (reportData.caisseGlobale) {
+    const g = reportData.caisseGlobale
+    autoTable(doc, {
+      startY: doc.lastAutoTable.finalY + 16,
+      head: [['Caisse globale (compte partagé)', 'FCFA', 'Ouguiya']],
+      body: [
+        ['Solde initial (alimentation)', String(g.soldeInitialFcfa ?? 0), String(g.soldeInitialOuguiya ?? 0)],
+        ['Total transactions (sorties)', String(g.totalTransactionsFcfa ?? 0), String(g.totalTransactionsOuguiya ?? 0)],
+        ['Volume (a circulé)', String(g.volumeFcfa ?? 0), String(g.volumeOuguiya ?? 0)],
+        ['Solde final', String(g.soldeFinalFcfa ?? 0), String(g.soldeFinalOuguiya ?? 0)],
+      ],
+      styles: { fontSize: 9 },
+      headStyles: { fillColor: [30, 58, 95] },
+      margin: { left: 40, right: 40 },
+      theme: 'striped',
+    })
+  }
+
+  // Mouvements par point de service (informatif)
+  const mv = Array.isArray(reportData.mouvementsParPointService) ? reportData.mouvementsParPointService : []
+  if (mv.length) {
     autoTable(doc, {
       startY: doc.lastAutoTable.finalY + 16,
       head: [[
         'Point de service', 'Ville', 'Pays',
-        'Solde initial FCFA', 'Solde initial Ouguiya',
-        'Total transactions FCFA', 'Total transactions Ouguiya',
-        'Solde final FCFA', 'Solde final Ouguiya'
+        'Volume FCFA', 'Volume Ouguiya',
+        'Transactions FCFA (sorties)', 'Transactions Ouguiya (sorties)'
       ]],
-      body: caisse.map((p) => ([
+      body: mv.map((p) => ([
         p.nom ?? '-',
         p.ville ?? '-',
         p.pays ?? '-',
-        String(p.soldeInitialFcfa ?? 0),
-        String(p.soldeInitialOuguiya ?? 0),
+        String(p.volumeFcfa ?? 0),
+        String(p.volumeOuguiya ?? 0),
         String(p.totalTransactionsFcfa ?? 0),
         String(p.totalTransactionsOuguiya ?? 0),
-        String(p.soldeFinalFcfa ?? 0),
-        String(p.soldeFinalOuguiya ?? 0),
       ])),
       styles: { fontSize: 8 },
       headStyles: { fillColor: [37, 99, 235] },
