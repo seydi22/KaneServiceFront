@@ -1,6 +1,6 @@
 import { useState, useEffect, useCallback } from 'react'
-import { Box, Grid, Typography, Button as MuiButton, TextField, MenuItem } from '@mui/material'
-import { AddCircle } from '@mui/icons-material'
+import { Box, Grid, Typography, Button as MuiButton, TextField, MenuItem, Paper, InputAdornment } from '@mui/material'
+import { AddCircle, Search, Tune } from '@mui/icons-material'
 import { toast } from 'react-toastify'
 import { formatDate } from '../utils/format'
 import { dashboardService } from '../services/dashboard'
@@ -105,17 +105,31 @@ const DashboardAgent = () => {
   return (
     <Layout>
       <Box>
-        <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 3 }}>
-          <Typography variant="h4" fontWeight={700}>
-            Dashboard Agent
-          </Typography>
+        <Box sx={{ mb: 2.25, display: 'flex', alignItems: 'flex-end', justifyContent: 'space-between', gap: 2, flexWrap: 'wrap' }}>
+          <Box>
+            <Typography variant="h4" fontWeight={800} sx={{ letterSpacing: '-0.03em' }}>
+              Dashboard Agent
+            </Typography>
+            <Typography variant="body2" sx={{ color: 'var(--text-secondary)', mt: 0.5 }}>
+              Suivi de vos opérations du jour et filtres rapides
+            </Typography>
+          </Box>
           <MuiButton
             variant="contained"
             startIcon={<AddCircle />}
             onClick={() => setOpenModal(true)}
             sx={{
-              backgroundColor: 'var(--color-primary)',
-              '&:hover': { backgroundColor: 'var(--color-primary-dark)' }
+              borderRadius: 'var(--radius-lg)',
+              paddingX: 2,
+              paddingY: 1.1,
+              fontWeight: 700,
+              textTransform: 'none',
+              background: 'linear-gradient(135deg, rgba(13, 148, 136, 1) 0%, rgba(37, 99, 235, 0.95) 100%)',
+              boxShadow: '0 18px 45px rgba(0, 0, 0, 0.35)',
+              '&:hover': {
+                background: 'linear-gradient(135deg, rgba(13, 148, 136, 1) 0%, rgba(37, 99, 235, 1) 100%)',
+                boxShadow: '0 22px 60px rgba(0, 0, 0, 0.45)',
+              }
             }}
           >
             Nouvelle Opération
@@ -123,48 +137,73 @@ const DashboardAgent = () => {
         </Box>
 
         {/* Filtres */}
-        <Box sx={{ mb: 3, display: 'flex', gap: 2 }}>
-          <TextField
-            label="Date"
-            type="date"
-            value={filters.date}
-            onChange={(e) => setFilters({ ...filters, date: e.target.value })}
-            InputLabelProps={{ shrink: true }}
-            sx={{ minWidth: 200 }}
-          />
-          <TextField
-            label="Service"
-            select
-            value={filters.service}
-            onChange={(e) => handleServiceFilterChange(e.target.value)}
-            sx={{ minWidth: 200 }}
-          >
-            <MenuItem value="">Tous</MenuItem>
-            {Object.values(SERVICES).map((serviceKey) => (
-              <MenuItem key={serviceKey} value={serviceKey}>
-                <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
-                  <ServiceLogo service={serviceKey} size={18} />
-                  <span>{SERVICE_LABELS[serviceKey]}</span>
-                </Box>
-              </MenuItem>
-            ))}
-          </TextField>
-          <TextField
-            label="Catégorie"
-            select
-            value={filters.categorie}
-            onChange={(e) => setFilters({ ...filters, categorie: e.target.value })}
-            disabled={!filters.service}
-            sx={{ minWidth: 200 }}
-          >
-            <MenuItem value="">Toutes</MenuItem>
-            {filters.service && CATEGORIES[filters.service]?.map((categorie) => (
-              <MenuItem key={categorie} value={categorie}>
-                {CATEGORIES_LABELS[categorie] || categorie}
-              </MenuItem>
-            ))}
-          </TextField>
-        </Box>
+        <Paper
+          variant="outlined"
+          sx={{
+            mb: 3,
+            p: { xs: 1.5, sm: 2 },
+            borderRadius: 'var(--radius-xl)',
+            borderColor: 'var(--border-light)',
+            backgroundImage:
+              'radial-gradient(1200px 600px at 20% -20%, rgba(13, 148, 136, 0.08), transparent 50%), radial-gradient(900px 500px at 80% 0%, rgba(37, 99, 235, 0.06), transparent 45%)',
+          }}
+        >
+          <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, mb: 1.5 }}>
+            <Tune sx={{ color: 'var(--text-secondary)' }} />
+            <Typography variant="subtitle2" sx={{ letterSpacing: '0.06em', textTransform: 'uppercase', color: 'var(--text-secondary)' }}>
+              Filtres
+            </Typography>
+          </Box>
+          <Box sx={{ display: 'flex', gap: 2, flexWrap: 'wrap' }}>
+            <TextField
+              label="Date"
+              type="date"
+              value={filters.date}
+              onChange={(e) => setFilters({ ...filters, date: e.target.value })}
+              InputLabelProps={{ shrink: true }}
+              sx={{ minWidth: 200 }}
+            />
+            <TextField
+              label="Service"
+              select
+              value={filters.service}
+              onChange={(e) => handleServiceFilterChange(e.target.value)}
+              sx={{ minWidth: 220 }}
+              InputProps={{
+                startAdornment: (
+                  <InputAdornment position="start">
+                    <Search sx={{ color: 'var(--text-tertiary)' }} />
+                  </InputAdornment>
+                )
+              }}
+            >
+              <MenuItem value="">Tous</MenuItem>
+              {Object.values(SERVICES).map((serviceKey) => (
+                <MenuItem key={serviceKey} value={serviceKey}>
+                  <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+                    <ServiceLogo service={serviceKey} size={18} />
+                    <span>{SERVICE_LABELS[serviceKey]}</span>
+                  </Box>
+                </MenuItem>
+              ))}
+            </TextField>
+            <TextField
+              label="Catégorie"
+              select
+              value={filters.categorie}
+              onChange={(e) => setFilters({ ...filters, categorie: e.target.value })}
+              disabled={!filters.service}
+              sx={{ minWidth: 220 }}
+            >
+              <MenuItem value="">Toutes</MenuItem>
+              {filters.service && CATEGORIES[filters.service]?.map((categorie) => (
+                <MenuItem key={categorie} value={categorie}>
+                  {CATEGORIES_LABELS[categorie] || categorie}
+                </MenuItem>
+              ))}
+            </TextField>
+          </Box>
+        </Paper>
 
         {/* Cards statistiques */}
         <Grid container spacing={3} sx={{ mb: 3 }}>
@@ -172,7 +211,7 @@ const DashboardAgent = () => {
             <StatCard
               title="Opérations (période)"
               value={data?.totalOperations ?? 0}
-              icon={<Receipt sx={{ color: 'var(--color-primary)', fontSize: 32 }} />}
+              icon={<Receipt sx={{ color: 'var(--color-primary-light)', fontSize: 32 }} />}
               color="var(--color-primary)"
             />
           </Grid>
@@ -220,7 +259,7 @@ const DashboardAgent = () => {
                       py: 1,
                       px: 2,
                       borderRadius: 'var(--radius-md)',
-                      backgroundColor: 'var(--bg-tertiary)',
+                        backgroundColor: 'rgba(148, 163, 184, 0.06)',
                       border: '1px solid var(--border-light)',
                     }}
                   >
@@ -257,7 +296,7 @@ const DashboardAgent = () => {
                       py: 1,
                       px: 2,
                       borderRadius: 'var(--radius-md)',
-                      backgroundColor: 'var(--bg-tertiary)',
+                      backgroundColor: 'rgba(148, 163, 184, 0.06)',
                       border: '1px solid var(--border-light)',
                     }}
                   >

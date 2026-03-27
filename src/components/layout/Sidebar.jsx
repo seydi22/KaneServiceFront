@@ -144,27 +144,27 @@ const Sidebar = () => {
                   paddingX: 1.5,
                   transition: 'background-color 0.15s ease, color 0.15s ease',
                   '&.Mui-selected': {
-                    backgroundColor: 'var(--color-primary-50)',
-                    borderLeft: '3px solid var(--color-primary)',
+                    backgroundColor: 'rgba(13, 148, 136, 0.12)',
+                    border: '1px solid rgba(13, 148, 136, 0.22)',
                     '& .MuiListItemIcon-root': {
-                      color: 'var(--color-primary)',
+                      color: 'var(--color-primary-light)',
                     },
                     '& .MuiListItemText-primary': {
-                      color: 'var(--color-primary)',
+                      color: 'var(--text-primary)',
                       fontWeight: 600,
                     },
                     '&:hover': {
-                      backgroundColor: 'var(--color-primary-100)',
+                      backgroundColor: 'rgba(13, 148, 136, 0.16)',
                     },
                   },
                   '&:hover': {
-                    backgroundColor: 'var(--bg-tertiary)',
+                    backgroundColor: 'rgba(148, 163, 184, 0.10)',
                   },
                 }}
               >
                 <ListItemIcon
                   sx={{
-                    color: isSelected ? 'var(--color-primary)' : 'var(--text-secondary)',
+                    color: isSelected ? 'var(--color-primary-light)' : 'var(--text-secondary)',
                     minWidth: 40,
                     transition: 'color var(--transition-fast)'
                   }}

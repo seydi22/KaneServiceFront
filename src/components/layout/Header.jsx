@@ -1,5 +1,5 @@
-import { AppBar, Toolbar, Typography, Box, IconButton, Menu, MenuItem, Avatar, useMediaQuery, useTheme } from '@mui/material'
-import { AccountCircle, Logout, Menu as MenuIcon } from '@mui/icons-material'
+import { AppBar, Toolbar, Typography, Box, IconButton, Menu, MenuItem, Avatar, useMediaQuery, useTheme, Chip } from '@mui/material'
+import { Logout, Menu as MenuIcon } from '@mui/icons-material'
 import { useState } from 'react'
 import { useAuth } from '../../context/AuthContext'
 import { useSidebar } from '../../context/SidebarContext'
@@ -37,10 +37,11 @@ const Header = () => {
       position="fixed"
       elevation={0}
       sx={{
-        backgroundColor: 'var(--color-primary)',
-        boxShadow: '0 1px 3px rgba(0,0,0,0.06)',
+        backgroundColor: 'rgba(7, 11, 20, 0.82)',
+        backdropFilter: 'blur(10px)',
+        boxShadow: '0 10px 30px rgba(0, 0, 0, 0.35)',
         zIndex: 'var(--z-fixed)',
-        borderBottom: '1px solid rgba(255,255,255,0.08)',
+        borderBottom: '1px solid var(--border-light)',
       }}
     >
       <Toolbar
@@ -86,6 +87,7 @@ const Header = () => {
                 fontWeight: 500,
                 opacity: 0.92,
                 letterSpacing: '-0.01em',
+                color: 'var(--text-secondary)',
               }}
             >
               Suivi Opérations Financières
@@ -103,21 +105,35 @@ const Header = () => {
             variant="body2"
             sx={{
               display: { xs: 'none', sm: 'block' },
-              color: 'rgba(255, 255, 255, 0.9)',
+              color: 'var(--text-secondary)',
               fontWeight: 500
             }}
           >
             {user?.prenom && user?.nom ? `${user.prenom} ${user.nom}` : user?.matricule}
           </Typography>
+          <Chip
+            size="small"
+            label={(user?.role || '').toUpperCase() || 'USER'}
+            sx={{
+              display: { xs: 'none', sm: 'inline-flex' },
+              height: 24,
+              borderRadius: 'var(--radius-full)',
+              bgcolor: 'rgba(13, 148, 136, 0.14)',
+              color: 'var(--color-primary-light)',
+              border: '1px solid rgba(13, 148, 136, 0.25)',
+              fontWeight: 700,
+              letterSpacing: '0.06em'
+            }}
+          />
           <IconButton
             onClick={handleMenuOpen}
             size="small"
             sx={{
               '&:hover': {
-                backgroundColor: 'rgba(255, 255, 255, 0.1)'
+                backgroundColor: 'rgba(148, 163, 184, 0.12)'
               },
               '&:focus-visible': {
-                outline: '2px solid rgba(255, 255, 255, 0.5)',
+                outline: '2px solid rgba(13, 148, 136, 0.55)',
                 outlineOffset: '2px'
               }
             }}
@@ -127,7 +143,9 @@ const Header = () => {
               sx={{
                 width: { xs: 28, sm: 32 },
                 height: { xs: 28, sm: 32 },
-                bgcolor: 'var(--color-success)',
+                bgcolor: 'rgba(13, 148, 136, 0.18)',
+                border: '1px solid rgba(13, 148, 136, 0.35)',
+                color: 'var(--color-primary-light)',
                 fontWeight: 600,
                 fontSize: { xs: '0.875rem', sm: '1rem' },
                 boxShadow: 'var(--shadow-sm)'
@@ -148,7 +166,8 @@ const Header = () => {
                 minWidth: 200,
                 boxShadow: 'var(--shadow-lg)',
                 borderRadius: 'var(--radius-md)',
-                border: '1px solid var(--border-light)'
+                border: '1px solid var(--border-light)',
+                backgroundColor: 'var(--bg-primary)'
               }
             }}
           >
@@ -156,10 +175,10 @@ const Header = () => {
               onClick={handleLogout}
               sx={{
                 '&:hover': {
-                  backgroundColor: 'var(--color-error-50)'
+                  backgroundColor: 'rgba(220, 38, 38, 0.12)'
                 },
                 '&:focus': {
-                  backgroundColor: 'var(--color-error-50)'
+                  backgroundColor: 'rgba(220, 38, 38, 0.12)'
                 }
               }}
             >

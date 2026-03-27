@@ -57,22 +57,23 @@
   --color-gray-900: #18181B;
   
   /* ===== Backgrounds ===== */
-  --bg-primary: #FFFFFF;
-  --bg-secondary: #FAFAFA;
-  --bg-tertiary: #F4F4F5;
-  --bg-overlay: rgba(0, 0, 0, 0.4);
+  /* Dark fintech surfaces (default) */
+  --bg-primary: #0B1220;     /* surfaces/cards */
+  --bg-secondary: #070B14;   /* app background */
+  --bg-tertiary: #0F172A;    /* elevated/hover */
+  --bg-overlay: rgba(0, 0, 0, 0.6);
   
   /* ===== Text ===== */
-  --text-primary: #18181B;
-  --text-secondary: #71717A;
-  --text-tertiary: #A1A1AA;
-  --text-inverse: #FFFFFF;
-  --text-disabled: #D4D4D8;
+  --text-primary: #E5E7EB;
+  --text-secondary: #94A3B8;
+  --text-tertiary: #64748B;
+  --text-inverse: #0B1220;
+  --text-disabled: #475569;
   
   /* ===== Borders ===== */
-  --border-light: #E4E4E7;
-  --border-medium: #D4D4D8;
-  --border-dark: #A1A1AA;
+  --border-light: rgba(148, 163, 184, 0.18);
+  --border-medium: rgba(148, 163, 184, 0.28);
+  --border-dark: rgba(148, 163, 184, 0.38);
   
   /* ===== Spacing Scale ===== */
   --spacing-xs: 0.25rem;   /* 4px */

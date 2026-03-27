@@ -39,8 +39,10 @@ const Table = ({
       component={Paper}
       sx={{
         borderRadius: 'var(--radius-lg)',
-        boxShadow: 'var(--shadow-sm)',
+        boxShadow: '0 18px 50px rgba(0, 0, 0, 0.30)',
         border: '1px solid var(--border-light)',
+        backgroundImage:
+          'radial-gradient(1200px 600px at 20% -20%, rgba(13, 148, 136, 0.10), transparent 50%), radial-gradient(900px 500px at 80% 0%, rgba(37, 99, 235, 0.08), transparent 45%)',
         overflowX: 'auto',
         '&::-webkit-scrollbar': {
           height: '8px'
@@ -54,11 +56,11 @@ const Table = ({
         }
       }}
     >
-      <MuiTable sx={{ minWidth: 650 }}>
+      <MuiTable sx={{ minWidth: 650, borderCollapse: 'separate' }}>
         <TableHead>
           <TableRow
             sx={{
-              backgroundColor: 'var(--bg-tertiary)',
+              backgroundColor: 'rgba(148, 163, 184, 0.06)',
               '& .MuiTableCell-head': {
                 borderBottom: '2px solid var(--border-light)'
               }
@@ -73,7 +75,8 @@ const Table = ({
                   color: 'var(--text-primary)',
                   textTransform: 'uppercase',
                   letterSpacing: '0.05em',
-                  padding: { xs: 1.5, sm: 2 }
+                  padding: { xs: 1.5, sm: 2 },
+                  whiteSpace: 'nowrap'
                 }}
               >
                 {column.label}
@@ -134,7 +137,7 @@ const Table = ({
                 hover
                 sx={{
                   '&:hover': {
-                    backgroundColor: 'var(--bg-tertiary)'
+                    backgroundColor: 'rgba(148, 163, 184, 0.08)'
                   },
                   '&:last-child td': {
                     borderBottom: 'none'
@@ -149,7 +152,8 @@ const Table = ({
                       padding: { xs: 1.5, sm: 2 },
                       fontSize: '0.9375rem',
                       color: 'var(--text-primary)',
-                      borderBottom: '1px solid var(--border-light)'
+                      borderBottom: '1px solid var(--border-light)',
+                      whiteSpace: 'nowrap'
                     }}
                   >
                     {column.render ? column.render(row) : renderCellValue(row[column.key])}
@@ -170,6 +174,12 @@ const Table = ({
           onRowsPerPageChange={onRowsPerPageChange}
           rowsPerPageOptions={[10, 25, 50, 100]}
           labelRowsPerPage="Lignes par page:"
+          sx={{
+            borderTop: '1px solid var(--border-light)',
+            '& .MuiTablePagination-toolbar': {
+              minHeight: 52
+            }
+          }}
         />
       )}
     </TableContainer>

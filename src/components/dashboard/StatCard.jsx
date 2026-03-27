@@ -7,12 +7,17 @@ const StatCard = ({ title, value, subtitle, trend, icon, color = 'var(--color-pr
       sx={{
         width: '100%',
         height: '100%',
+        border: '1px solid var(--border-light)',
         borderLeft: `4px solid ${color}`,
         position: 'relative',
         overflow: 'hidden',
+        boxShadow: '0 18px 50px rgba(0, 0, 0, 0.28)',
+        backgroundImage:
+          `radial-gradient(1200px 600px at 20% -20%, ${color}1A, transparent 50%), radial-gradient(900px 500px at 80% 0%, rgba(37, 99, 235, 0.06), transparent 45%)`,
         transition: 'box-shadow 0.2s ease, transform 0.2s ease',
         '&:hover': {
-          boxShadow: '0 4px 12px rgba(0,0,0,0.06)',
+          boxShadow: '0 24px 70px rgba(0, 0, 0, 0.36)',
+          transform: 'translateY(-2px)',
         },
         '&::before': {
           content: '""',
@@ -114,7 +119,7 @@ const StatCard = ({ title, value, subtitle, trend, icon, color = 'var(--color-pr
           {icon && (
             <Box
               sx={{
-                backgroundColor: `${color}15`,
+                backgroundColor: `${color}18`,
                 borderRadius: 'var(--radius-lg)',
                 padding: { xs: 1.5, sm: 2 },
                 display: 'flex',

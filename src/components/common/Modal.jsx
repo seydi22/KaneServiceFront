@@ -13,7 +13,9 @@ const Modal = ({ open, onClose, title, children, actions, maxWidth = 'sm' }) => 
           borderRadius: 'var(--radius-xl)',
           boxShadow: 'var(--shadow-2xl)',
           border: '1px solid var(--border-light)',
-          overflow: 'hidden'
+          overflow: 'hidden',
+          backgroundImage:
+            'radial-gradient(1200px 600px at 20% -20%, rgba(13, 148, 136, 0.10), transparent 50%), radial-gradient(900px 500px at 80% 0%, rgba(37, 99, 235, 0.08), transparent 45%)',
         }
       }}
       BackdropProps={{
@@ -31,7 +33,7 @@ const Modal = ({ open, onClose, title, children, actions, maxWidth = 'sm' }) => 
           padding: { xs: 2, sm: 3 },
           paddingBottom: 2,
           borderBottom: '1px solid var(--border-light)',
-          backgroundColor: 'var(--bg-tertiary)'
+          backgroundColor: 'rgba(148, 163, 184, 0.06)'
         }}
       >
         <Box

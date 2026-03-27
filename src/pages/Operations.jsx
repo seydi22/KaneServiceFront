@@ -1,8 +1,8 @@
 import { useState, useEffect } from 'react'
-import { Box, Typography, TextField, MenuItem, Button as MuiButton, IconButton } from '@mui/material'
-import { Search, FileDownload, PictureAsPdf } from '@mui/icons-material'
+import { Box, Typography, TextField, MenuItem, Button as MuiButton, IconButton, Paper, InputAdornment, Tooltip } from '@mui/material'
+import { Search, FileDownload, PictureAsPdf, AddCircle, Tune } from '@mui/icons-material'
 import { toast } from 'react-toastify'
-import { formatCurrency, formatDateTime } from '../utils/format'
+import { formatDateTime } from '../utils/format'
 import { operationsService } from '../services/operations'
 import { reportsService } from '../services/reports'
 import { exportToExcel, exportToPDF } from '../utils/export'
@@ -190,9 +190,13 @@ const Operations = () => {
       key: 'actions',
       label: 'Actions',
       render: (row) => (
-        <IconButton size="small" onClick={() => toast.info(`Détails de l'opération ${row?.id || 'N/A'}`)}>
-          <Search />
-        </IconButton>
+        <Tooltip title="Détails (bientôt)">
+          <span>
+            <IconButton size="small" onClick={() => toast.info(`Détails de l'opération ${row?._id || row?.id || 'N/A'}`)}>
+              <Search />
+            </IconButton>
+          </span>
+        </Tooltip>
       )
     }
   ]
@@ -214,20 +218,47 @@ const Operations = () => {
     <Layout>
       <Box>
         {error && (
-          <Box sx={{ mb: 2, p: 2, backgroundColor: 'var(--color-error-50)', borderRadius: 'var(--radius-md)', color: 'var(--color-error)' }}>
+          <Box
+            sx={{
+              mb: 2,
+              p: 2,
+              backgroundColor: 'rgba(220, 38, 38, 0.12)',
+              borderRadius: 'var(--radius-lg)',
+              color: 'var(--color-error)',
+              border: '1px solid rgba(220, 38, 38, 0.18)',
+            }}
+          >
             <Typography>{error}</Typography>
           </Box>
         )}
-        <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 3 }}>
-          <Typography variant="h4" fontWeight={700}>
-            Opérations
-          </Typography>
-          <Box sx={{ display: 'flex', gap: 2 }}>
+        <Box sx={{ mb: 2.25, display: 'flex', alignItems: 'flex-end', justifyContent: 'space-between', gap: 2, flexWrap: 'wrap' }}>
+          <Box>
+            <Typography variant="h4" fontWeight={800} sx={{ letterSpacing: '-0.03em' }}>
+              Opérations
+            </Typography>
+            <Typography variant="body2" sx={{ color: 'var(--text-secondary)', mt: 0.5 }}>
+              Gestion, filtres avancés et export (Excel / PDF)
+            </Typography>
+          </Box>
+          <Box sx={{ display: 'flex', gap: 1.25, flexWrap: 'wrap' }}>
             {isAgent && (
               <MuiButton
                 variant="contained"
                 onClick={() => setOpenModal(true)}
-                sx={{ backgroundColor: 'var(--color-primary)' }}
+                startIcon={<AddCircle />}
+                sx={{
+                  borderRadius: 'var(--radius-lg)',
+                  paddingX: 2,
+                  paddingY: 1.05,
+                  fontWeight: 700,
+                  textTransform: 'none',
+                  background: 'linear-gradient(135deg, rgba(13, 148, 136, 1) 0%, rgba(37, 99, 235, 0.95) 100%)',
+                  boxShadow: '0 18px 45px rgba(0, 0, 0, 0.35)',
+                  '&:hover': {
+                    background: 'linear-gradient(135deg, rgba(13, 148, 136, 1) 0%, rgba(37, 99, 235, 1) 100%)',
+                    boxShadow: '0 22px 60px rgba(0, 0, 0, 0.45)',
+                  }
+                }}
               >
                 Nouvelle Opération
               </MuiButton>
@@ -236,6 +267,12 @@ const Operations = () => {
               variant="outlined"
               startIcon={<FileDownload />}
               onClick={handleExportExcel}
+              sx={{
+                borderRadius: 'var(--radius-lg)',
+                textTransform: 'none',
+                fontWeight: 700,
+                borderColor: 'var(--border-light)',
+              }}
             >
               Excel
             </MuiButton>
@@ -243,6 +280,12 @@ const Operations = () => {
               variant="outlined"
               startIcon={<PictureAsPdf />}
               onClick={handleExportPDF}
+              sx={{
+                borderRadius: 'var(--radius-lg)',
+                textTransform: 'none',
+                fontWeight: 700,
+                borderColor: 'var(--border-light)',
+              }}
             >
               PDF
             </MuiButton>
@@ -250,7 +293,24 @@ const Operations = () => {
         </Box>
 
         {/* Filtres */}
-        <Box sx={{ mb: 3, display: 'flex', gap: 2, flexWrap: 'wrap' }}>
+        <Paper
+          variant="outlined"
+          sx={{
+            mb: 3,
+            p: { xs: 1.5, sm: 2 },
+            borderRadius: 'var(--radius-xl)',
+            borderColor: 'var(--border-light)',
+            backgroundImage:
+              'radial-gradient(1200px 600px at 20% -20%, rgba(13, 148, 136, 0.08), transparent 50%), radial-gradient(900px 500px at 80% 0%, rgba(37, 99, 235, 0.06), transparent 45%)',
+          }}
+        >
+          <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, mb: 1.5 }}>
+            <Tune sx={{ color: 'var(--text-secondary)' }} />
+            <Typography variant="subtitle2" sx={{ letterSpacing: '0.06em', textTransform: 'uppercase', color: 'var(--text-secondary)' }}>
+              Filtres
+            </Typography>
+          </Box>
+          <Box sx={{ display: 'flex', gap: 2, flexWrap: 'wrap' }}>
           <TextField
             label="Pays"
             select
@@ -348,8 +408,16 @@ const Operations = () => {
             onChange={(e) => setFilters({ ...filters, recherche: e.target.value })}
             placeholder="Rechercher..."
             sx={{ minWidth: 200 }}
+            InputProps={{
+              startAdornment: (
+                <InputAdornment position="start">
+                  <Search sx={{ color: 'var(--text-tertiary)' }} />
+                </InputAdornment>
+              )
+            }}
           />
-        </Box>
+          </Box>
+        </Paper>
 
         <Table
           columns={columns}

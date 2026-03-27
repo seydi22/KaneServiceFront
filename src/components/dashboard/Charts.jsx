@@ -67,7 +67,15 @@ export const LineChartCard = ({ title, data, dataKey, xKey = 'name' }) => {
   }
 
   return (
-    <Card sx={{ borderRadius: 'var(--radius-lg)', boxShadow: 'var(--shadow-sm)', border: '1px solid var(--border-light)' }}>
+    <Card
+      sx={{
+        borderRadius: 'var(--radius-xl)',
+        boxShadow: '0 18px 50px rgba(0, 0, 0, 0.28)',
+        border: '1px solid var(--border-light)',
+        backgroundImage:
+          'radial-gradient(1200px 600px at 20% -20%, rgba(13, 148, 136, 0.08), transparent 50%), radial-gradient(900px 500px at 80% 0%, rgba(37, 99, 235, 0.06), transparent 45%)',
+      }}
+    >
       <CardContent>
         <Typography
           variant="h6"
@@ -130,7 +138,15 @@ export const BarChartCard = ({ title, data, dataKey, xKey = 'name' }) => {
   }
 
   return (
-    <Card sx={{ borderRadius: 'var(--radius-lg)', boxShadow: 'var(--shadow-sm)', border: '1px solid var(--border-light)' }}>
+    <Card
+      sx={{
+        borderRadius: 'var(--radius-xl)',
+        boxShadow: '0 18px 50px rgba(0, 0, 0, 0.28)',
+        border: '1px solid var(--border-light)',
+        backgroundImage:
+          'radial-gradient(1200px 600px at 20% -20%, rgba(13, 148, 136, 0.08), transparent 50%), radial-gradient(900px 500px at 80% 0%, rgba(37, 99, 235, 0.06), transparent 45%)',
+      }}
+    >
       <CardContent>
         <Typography
           variant="h6"
@@ -189,7 +205,15 @@ export const PieChartCard = ({ title, data, dataKey = 'value', nameKey = 'name' 
   }
 
   return (
-    <Card sx={{ borderRadius: 'var(--radius-lg)', boxShadow: 'var(--shadow-sm)', border: '1px solid var(--border-light)' }}>
+    <Card
+      sx={{
+        borderRadius: 'var(--radius-xl)',
+        boxShadow: '0 18px 50px rgba(0, 0, 0, 0.28)',
+        border: '1px solid var(--border-light)',
+        backgroundImage:
+          'radial-gradient(1200px 600px at 20% -20%, rgba(13, 148, 136, 0.08), transparent 50%), radial-gradient(900px 500px at 80% 0%, rgba(37, 99, 235, 0.06), transparent 45%)',
+      }}
+    >
       <CardContent>
         <Typography
           variant="h6"

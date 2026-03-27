@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react'
 import { useForm } from 'react-hook-form'
-import { TextField, MenuItem, Box } from '@mui/material'
+import { TextField, MenuItem, Box, Paper } from '@mui/material'
 import { toast } from 'react-toastify'
 import { operationsService } from '../../services/operations'
 import { SERVICES, CATEGORIES, CATEGORIES_LABELS, SERVICE_LABELS, DEVISES, CATEGORIES_WITH_TRANSFER } from '../../constants'
@@ -151,7 +151,16 @@ const OperationModal = ({ open, onClose, onSuccess }) => {
         </>
       }
     >
-      <form onSubmit={handleSubmit(onSubmit)}>
+      <Paper
+        variant="outlined"
+        sx={{
+          p: { xs: 1.5, sm: 2 },
+          borderRadius: 'var(--radius-xl)',
+          borderColor: 'var(--border-light)',
+          backgroundColor: 'rgba(148, 163, 184, 0.03)',
+        }}
+      >
+        <form onSubmit={handleSubmit(onSubmit)}>
         <TextField
           label="Service"
           select
@@ -320,9 +329,10 @@ const OperationModal = ({ open, onClose, onSuccess }) => {
           rows={3}
           fullWidth
           {...register('commentaire')}
-          sx={{ mb: 2 }}
+          sx={{ mb: 0 }}
         />
-      </form>
+        </form>
+      </Paper>
     </Modal>
   )
 }

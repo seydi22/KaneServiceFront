@@ -1,12 +1,12 @@
 import { useState, useEffect, useCallback } from 'react'
-import { Box, Grid, Typography, TextField, MenuItem } from '@mui/material'
+import { Box, Grid, Typography, TextField, MenuItem, Paper, InputAdornment } from '@mui/material'
 import { toast } from 'react-toastify'
 import { formatCurrency } from '../utils/format'
 import { dashboardService } from '../services/dashboard'
 import Layout from '../components/layout/Layout'
 import StatCard from '../components/dashboard/StatCard'
 import { LineChartCard, BarChartCard, PieChartCard } from '../components/dashboard/Charts'
-import { Receipt, AttachMoney, Business, People } from '@mui/icons-material'
+import { Receipt, AttachMoney, Business, People, Search, Tune } from '@mui/icons-material'
 
 const DashboardAdmin = () => {
   const [loading, setLoading] = useState(true)
@@ -51,12 +51,36 @@ const DashboardAdmin = () => {
   return (
     <Layout>
       <Box>
-        <Typography variant="h4" fontWeight={700} sx={{ mb: 3 }}>
-          Dashboard Admin
-        </Typography>
+        <Box sx={{ mb: 2.25, display: 'flex', alignItems: 'flex-end', justifyContent: 'space-between', gap: 2, flexWrap: 'wrap' }}>
+          <Box>
+            <Typography variant="h4" fontWeight={800} sx={{ letterSpacing: '-0.03em' }}>
+              Dashboard Admin
+            </Typography>
+            <Typography variant="body2" sx={{ color: 'var(--text-secondary)', mt: 0.5 }}>
+              Vue globale des opérations et des montants (FCFA / Ouguiya)
+            </Typography>
+          </Box>
+        </Box>
 
         {/* Filtres avancés */}
-        <Box sx={{ mb: 3, display: 'flex', gap: 2, flexWrap: 'wrap' }}>
+        <Paper
+          variant="outlined"
+          sx={{
+            mb: 3,
+            p: { xs: 1.5, sm: 2 },
+            borderRadius: 'var(--radius-xl)',
+            borderColor: 'var(--border-light)',
+            backgroundImage:
+              'radial-gradient(1200px 600px at 20% -20%, rgba(13, 148, 136, 0.08), transparent 50%), radial-gradient(900px 500px at 80% 0%, rgba(37, 99, 235, 0.06), transparent 45%)',
+          }}
+        >
+          <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, mb: 1.5 }}>
+            <Tune sx={{ color: 'var(--text-secondary)' }} />
+            <Typography variant="subtitle2" sx={{ letterSpacing: '0.06em', textTransform: 'uppercase', color: 'var(--text-secondary)' }}>
+              Filtres
+            </Typography>
+          </Box>
+          <Box sx={{ display: 'flex', gap: 2, flexWrap: 'wrap' }}>
           <TextField
             label="Pays"
             select
@@ -90,14 +114,31 @@ const DashboardAdmin = () => {
             value={filters.pointService}
             onChange={(e) => setFilters({ ...filters, pointService: e.target.value })}
             sx={{ minWidth: 200 }}
+            placeholder="Rechercher…"
+            InputProps={{
+              startAdornment: (
+                <InputAdornment position="start">
+                  <Search sx={{ color: 'var(--text-tertiary)' }} />
+                </InputAdornment>
+              )
+            }}
           />
           <TextField
             label="Agent"
             value={filters.agent}
             onChange={(e) => setFilters({ ...filters, agent: e.target.value })}
             sx={{ minWidth: 200 }}
+            placeholder="Rechercher…"
+            InputProps={{
+              startAdornment: (
+                <InputAdornment position="start">
+                  <Search sx={{ color: 'var(--text-tertiary)' }} />
+                </InputAdornment>
+              )
+            }}
           />
-        </Box>
+          </Box>
+        </Paper>
 
         {/* Cards statistiques */}
         <Grid container spacing={3} sx={{ mb: 3 }} alignItems="stretch">
@@ -105,8 +146,8 @@ const DashboardAdmin = () => {
             <StatCard
               title="Total Opérations"
               value={data?.totalOperations || 0}
-icon={<Receipt sx={{ color: 'var(--color-primary)', fontSize: 32 }} />}
-                color="var(--color-primary)"
+              icon={<Receipt sx={{ color: 'var(--color-primary-light)', fontSize: 32 }} />}
+              color="var(--color-primary)"
             />
           </Grid>
           <Grid item xs={12} sm={6} md={3} sx={{ display: 'flex' }}>
@@ -137,16 +178,16 @@ icon={<Receipt sx={{ color: 'var(--color-primary)', fontSize: 32 }} />}
             <StatCard
               title="Points de Service"
               value={data?.totalPointsService || 0}
-icon={<Business sx={{ color: 'var(--color-warning)', fontSize: 32 }} />}
-                color="var(--color-warning)"
+              icon={<Business sx={{ color: 'var(--color-warning)', fontSize: 32 }} />}
+              color="var(--color-warning)"
             />
           </Grid>
           <Grid item xs={12} sm={6} md={3} sx={{ display: 'flex' }}>
             <StatCard
               title="Agents Actifs"
               value={data?.totalAgentsActifs || 0}
-icon={<People sx={{ color: 'var(--color-purple)', fontSize: 32 }} />}
-                color="var(--color-purple)"
+              icon={<People sx={{ color: 'var(--color-purple)', fontSize: 32 }} />}
+              color="var(--color-purple)"
             />
           </Grid>
         </Grid>
@@ -155,7 +196,15 @@ icon={<People sx={{ color: 'var(--color-purple)', fontSize: 32 }} />}
         {data?.topPointsService && data.topPointsService.length > 0 && (
           <Grid container spacing={3} sx={{ mb: 3 }}>
             <Grid item xs={12} md={6}>
-              <Box sx={{ backgroundColor: 'white', p: 2, borderRadius: '12px', boxShadow: '0 1px 3px rgba(0,0,0,0.1)' }}>
+              <Paper
+                variant="outlined"
+                sx={{
+                  p: 2.25,
+                  borderRadius: 'var(--radius-xl)',
+                  borderColor: 'var(--border-light)',
+                  backgroundColor: 'rgba(148, 163, 184, 0.04)',
+                }}
+              >
                 <Typography variant="h6" fontWeight={600} gutterBottom>
                   Top 5 Points de Service
                 </Typography>
@@ -165,10 +214,18 @@ icon={<People sx={{ color: 'var(--color-purple)', fontSize: 32 }} />}
                     <Typography fontWeight={600}>{formatCurrency(item.value)}</Typography>
                   </Box>
                 ))}
-              </Box>
+              </Paper>
             </Grid>
             <Grid item xs={12} md={6}>
-              <Box sx={{ backgroundColor: 'white', p: 2, borderRadius: '12px', boxShadow: '0 1px 3px rgba(0,0,0,0.1)' }}>
+              <Paper
+                variant="outlined"
+                sx={{
+                  p: 2.25,
+                  borderRadius: 'var(--radius-xl)',
+                  borderColor: 'var(--border-light)',
+                  backgroundColor: 'rgba(148, 163, 184, 0.04)',
+                }}
+              >
                 <Typography variant="h6" fontWeight={600} gutterBottom>
                   Top 5 Agents
                 </Typography>
@@ -178,7 +235,7 @@ icon={<People sx={{ color: 'var(--color-purple)', fontSize: 32 }} />}
                     <Typography fontWeight={600}>{formatCurrency(item.value)}</Typography>
                   </Box>
                 ))}
-              </Box>
+              </Paper>
             </Grid>
           </Grid>
         )}
