@@ -22,7 +22,7 @@ const Alimentations = () => {
   const [filters, setFilters] = useState({ pointService: '', devise: '', dateDebut: '', dateFin: '' })
   const [devise, setDevise] = useState('XOF')
 
-  const { register, handleSubmit, formState: { errors }, reset, setValue } = useForm({
+  const { register, handleSubmit, formState: { errors }, reset, setValue, watch } = useForm({
     defaultValues: {
       pointService: '',
       montant: '',
@@ -30,6 +30,7 @@ const Alimentations = () => {
       dateAlimentation: new Date().toISOString().split('T')[0],
     }
   })
+  const pointServiceForm = watch('pointService')
 
   const fetchPoints = async () => {
     try {
@@ -76,7 +77,7 @@ const Alimentations = () => {
   const onSubmit = async (data) => {
     try {
       const payload = {
-        pointService: data.pointService,
+        pointService: data.pointService || null,
         montant: parseFloat(data.montant),
         devise,
         dateAlimentation: data.dateAlimentation,
@@ -106,7 +107,7 @@ const Alimentations = () => {
 
   const columns = [
     { key: 'dateAlimentation', label: 'Date', render: (r) => formatDateTime(r.dateAlimentation || r.createdAt) },
-    { key: 'pointService', label: 'Point de service', render: (r) => r.pointService?.nom ?? 'N/A' },
+    { key: 'pointService', label: 'Point de service', render: (r) => r.pointService?.nom ?? 'GLOBAL' },
     { key: 'ville', label: 'Ville', render: (r) => r.pointService?.ville ?? '-' },
     { key: 'devise', label: 'Devise' },
     { key: 'montant', label: 'Montant', render: (r) => formatCurrency(r.montant ?? 0, r.devise === 'MRO' ? 'MRU' : 'XOF') },
@@ -146,6 +147,7 @@ const Alimentations = () => {
             sx={{ minWidth: 240 }}
           >
             <MenuItem value="">Tous</MenuItem>
+            <MenuItem value="global">GLOBAL</MenuItem>
             {points.map((p) => (
               <MenuItem key={p._id} value={p._id}>{p.nom}{p.ville ? ` - ${p.ville}` : ''}</MenuItem>
             ))}
@@ -232,10 +234,11 @@ const Alimentations = () => {
               select
               fullWidth
               sx={{ mb: 2 }}
-              {...register('pointService', { required: 'Point de service requis' })}
+              {...register('pointService')}
               error={!!errors.pointService}
               helperText={errors.pointService?.message}
             >
+              <MenuItem value="">GLOBAL</MenuItem>
               {points.map((p) => (
                 <MenuItem key={p._id} value={p._id}>{p.nom}{p.ville ? ` - ${p.ville}` : ''}</MenuItem>
               ))}
