@@ -1,9 +1,9 @@
-import { useState, useEffect } from 'react'
-import { useForm } from 'react-hook-form'
+import { useState, useEffect, useRef } from 'react'
+import { useForm, Controller } from 'react-hook-form'
 import { TextField, MenuItem, Box, Paper } from '@mui/material'
 import { toast } from 'react-toastify'
 import { operationsService } from '../../services/operations'
-import { SERVICES, CATEGORIES, CATEGORIES_LABELS, SERVICE_LABELS, DEVISES, CATEGORIES_WITH_TRANSFER } from '../../constants'
+import { SERVICES, CATEGORIES, CATEGORIES_LABELS, SERVICE_LABELS, DEVISES, DEVISE_CANAL_PLUS, CATEGORIES_WITH_TRANSFER } from '../../constants'
 import Modal from '../common/Modal'
 import Button from '../common/Button'
 import ServiceLogo from '../common/ServiceLogo'
@@ -11,7 +11,8 @@ import ServiceLogo from '../common/ServiceLogo'
 const OperationModal = ({ open, onClose, onSuccess }) => {
   const [loading, setLoading] = useState(false)
   const [selectedService, setSelectedService] = useState('')
-  const { register, handleSubmit, formState: { errors }, reset, watch, setValue } = useForm({
+  const prevServiceRef = useRef(undefined)
+  const { register, handleSubmit, formState: { errors }, reset, watch, setValue, control } = useForm({
     defaultValues: {
       service: '',
       categorie: '',
@@ -37,9 +38,16 @@ const OperationModal = ({ open, onClose, onSuccess }) => {
     (categorie === 'Transfert' || categorie === 'Retrait')
   
   useEffect(() => {
-    if (service) {
+    if (!service) {
+      prevServiceRef.current = undefined
+      setSelectedService('')
+      return
+    }
+    // Ne réinitialiser les champs dépendants que lorsque le service change réellement
+    // (évite les conflits register/value MUI et les effets de bord au redraw)
+    if (service !== prevServiceRef.current) {
+      prevServiceRef.current = service
       setSelectedService(service)
-      // Réinitialiser la catégorie quand le service change
       setValue('categorie', '')
       setValue('montant', '')
       setValue('montantRecu', '')
@@ -49,8 +57,6 @@ const OperationModal = ({ open, onClose, onSuccess }) => {
       setValue('devise', '')
       setValue('deviseRecu', '')
       setValue('deviseEnvoye', '')
-    } else {
-      setSelectedService('')
     }
   }, [service, setValue])
 
@@ -84,11 +90,13 @@ const OperationModal = ({ open, onClose, onSuccess }) => {
         setValue('deviseEnvoye', '')
         setValue('montantFcfa', '')
         setValue('montantOuguiya', '')
-        // Pour les autres catégories, définir XOF par défaut
-        setValue('devise', 'XOF')
+        setValue(
+          'devise',
+          service === SERVICES.CANAL_PLUS ? DEVISE_CANAL_PLUS : 'XOF'
+        )
       }
     }
-  }, [categorie, requiresTransferFields, requiresDualCurrencyFields, setValue])
+  }, [categorie, requiresTransferFields, requiresDualCurrencyFields, service, setValue])
 
   const onSubmit = async (data) => {
     setLoading(true)
@@ -111,11 +119,15 @@ const OperationModal = ({ open, onClose, onSuccess }) => {
         operationData.deviseEnvoye = data.deviseEnvoye
       } else {
         operationData.montant = parseFloat(data.montant)
-        operationData.devise = data.devise || 'XOF'
+        operationData.devise =
+          data.service === SERVICES.CANAL_PLUS
+            ? DEVISE_CANAL_PLUS
+            : data.devise || 'XOF'
       }
 
       await operationsService.create(operationData)
       reset()
+      prevServiceRef.current = undefined
       // Émettre un événement personnalisé pour notifier les dashboards
       window.dispatchEvent(new CustomEvent('operationCreated'))
       onSuccess()
@@ -129,6 +141,7 @@ const OperationModal = ({ open, onClose, onSuccess }) => {
   const handleClose = () => {
     reset()
     setSelectedService('')
+    prevServiceRef.current = undefined
     onClose()
   }
   
@@ -161,43 +174,61 @@ const OperationModal = ({ open, onClose, onSuccess }) => {
         }}
       >
         <form onSubmit={handleSubmit(onSubmit)}>
-        <TextField
-          label="Service"
-          select
-          fullWidth
-          {...register('service', { required: 'Service requis' })}
-          value={service || ''}
-          error={!!errors.service}
-          helperText={errors.service?.message}
-          sx={{ mb: 2 }}
-        >
-          {Object.values(SERVICES).map((serviceKey) => (
-            <MenuItem key={serviceKey} value={serviceKey}>
-              <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, width: '100%' }}>
-                <ServiceLogo service={serviceKey} size={20} />
-                <span>{SERVICE_LABELS[serviceKey]}</span>
-              </Box>
-            </MenuItem>
-          ))}
-        </TextField>
+        <Controller
+          name="service"
+          control={control}
+          rules={{ required: 'Service requis' }}
+          render={({ field }) => (
+            <TextField
+              {...field}
+              label="Service"
+              select
+              fullWidth
+              value={field.value ?? ''}
+              error={!!errors.service}
+              helperText={errors.service?.message}
+              sx={{ mb: 2 }}
+            >
+              {Object.values(SERVICES).map((serviceKey) => (
+                <MenuItem key={serviceKey} value={serviceKey}>
+                  <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, width: '100%' }}>
+                    <ServiceLogo service={serviceKey} size={20} />
+                    <span>{SERVICE_LABELS[serviceKey]}</span>
+                  </Box>
+                </MenuItem>
+              ))}
+            </TextField>
+          )}
+        />
 
-        <TextField
-          label="Catégorie"
-          select
-          fullWidth
-          disabled={!selectedService}
-          {...register('categorie', { required: 'Catégorie requise' })}
-          value={watch('categorie') || ''}
-          error={!!errors.categorie}
-          helperText={errors.categorie?.message || (!selectedService ? 'Sélectionnez d\'abord un service' : '')}
-          sx={{ mb: 2 }}
-        >
-          {selectedService && CATEGORIES[selectedService]?.map((categorie) => (
-            <MenuItem key={categorie} value={categorie}>
-              {CATEGORIES_LABELS[categorie] || categorie}
-            </MenuItem>
-          ))}
-        </TextField>
+        <Controller
+          name="categorie"
+          control={control}
+          rules={{ required: 'Catégorie requise' }}
+          render={({ field }) => (
+            <TextField
+              {...field}
+              label="Catégorie"
+              select
+              fullWidth
+              disabled={!selectedService}
+              value={field.value ?? ''}
+              error={!!errors.categorie}
+              helperText={
+                errors.categorie?.message ||
+                (!selectedService ? 'Sélectionnez d\'abord un service' : '')
+              }
+              sx={{ mb: 2 }}
+            >
+              {selectedService &&
+                CATEGORIES[selectedService]?.map((catKey) => (
+                  <MenuItem key={catKey} value={catKey}>
+                    {CATEGORIES_LABELS[catKey] || catKey}
+                  </MenuItem>
+                ))}
+            </TextField>
+          )}
+        />
 
         {/* Champs conditionnels selon la catégorie */}
         {requiresDualCurrencyFields ? (
@@ -301,25 +332,49 @@ const OperationModal = ({ open, onClose, onSuccess }) => {
               helperText={errors.montant?.message || (!categorie ? 'Sélectionnez d\'abord une catégorie' : '')}
               sx={{ mb: 2 }}
             />
-            <TextField
-              label="Devise"
-              select
-              fullWidth
-              disabled={!categorie}
-              {...register('devise', { 
-                required: categorie ? 'Devise requise' : false 
-              })}
-              value={watch('devise') || ''}
-              error={!!errors.devise}
-              helperText={errors.devise?.message || (!categorie ? 'Sélectionnez d\'abord une catégorie' : 'Défaut: XOF')}
-              sx={{ mb: 2 }}
-            >
-              {DEVISES.map((devise) => (
-                <MenuItem key={devise} value={devise}>
-                  {devise}
-                </MenuItem>
-              ))}
-            </TextField>
+            {service === SERVICES.CANAL_PLUS ? (
+              <>
+                <input
+                  type="hidden"
+                  {...register('devise', {
+                    required: categorie ? 'Devise requise' : false,
+                  })}
+                />
+                <TextField
+                  label="Devise"
+                  fullWidth
+                  disabled
+                  value="Ouguiya (MRU)"
+                  sx={{ mb: 2 }}
+                  helperText="Canal+ : montants en ouguiya (MRU) uniquement"
+                />
+              </>
+            ) : (
+              <TextField
+                label="Devise"
+                select
+                fullWidth
+                disabled={!categorie}
+                {...register('devise', {
+                  required: categorie ? 'Devise requise' : false,
+                })}
+                value={watch('devise') || ''}
+                error={!!errors.devise}
+                helperText={
+                  errors.devise?.message ||
+                  (!categorie
+                    ? 'Sélectionnez d\'abord une catégorie'
+                    : 'Défaut: XOF')
+                }
+                sx={{ mb: 2 }}
+              >
+                {DEVISES.map((deviseOpt) => (
+                  <MenuItem key={deviseOpt} value={deviseOpt}>
+                    {deviseOpt}
+                  </MenuItem>
+                ))}
+              </TextField>
+            )}
           </>
         )}
 

@@ -44,6 +44,9 @@ export const SERVICE_LABELS = {
 
 export const DEVISES = ['XOF', 'MRO', 'EUR', 'USD']
 
+/** Canal+ : uniquement ouguiya — valeur API / base (`MRO`), libellé affiché MRU côté UI. */
+export const DEVISE_CANAL_PLUS = 'MRO'
+
 export const ROLES = {
   ADMIN: 'admin',
   AGENT: 'agent'
