@@ -29,7 +29,11 @@ const Layout = ({ children }) => {
         component="main"
         sx={{
           flexGrow: 1,
-          padding: { xs: 2, sm: 2.5, md: 3 },
+          // Espace visuel entre le menu latéral et le contenu (desktop)
+          paddingTop: { xs: 2, sm: 2.5, md: 3 },
+          paddingRight: { xs: 2, sm: 2.5, md: 3 },
+          paddingBottom: { xs: 2, sm: 2.5, md: 3 },
+          paddingLeft: { xs: 2, sm: 2.5, md: 5, lg: 6 },
           marginTop: isAuthenticated ? { xs: '56px', sm: '64px' } : 0,
           marginLeft: isAuthenticated ? { xs: 0, md: 'var(--sidebar-width)' } : 0,
           minHeight: isAuthenticated ? 'calc(100vh - 64px)' : '100vh',
