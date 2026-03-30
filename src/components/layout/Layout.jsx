@@ -29,7 +29,7 @@ const Layout = ({ children }) => {
         component="main"
         sx={{
           flexGrow: 1,
-          padding: { xs: 2, sm: 2, md: 2.5 },
+          padding: { xs: 2, sm: 2.5, md: 3 },
           marginTop: isAuthenticated ? { xs: '56px', sm: '64px' } : 0,
           marginLeft: isAuthenticated ? { xs: 0, md: 'var(--sidebar-width)' } : 0,
           minHeight: isAuthenticated ? 'calc(100vh - 64px)' : '100vh',
@@ -37,13 +37,15 @@ const Layout = ({ children }) => {
           transition: 'margin-left 0.2s ease',
           width: isAuthenticated ? { xs: '100%', md: `calc(100% - var(--sidebar-width))` } : '100%',
           maxWidth: isAuthenticated ? 'none' : '100%',
+          boxSizing: 'border-box',
         }}
       >
         <Box
           sx={{
             width: '100%',
-            maxWidth: 1280,
-            margin: 0,
+            maxWidth: 'var(--container-max-width)',
+            marginLeft: 'auto',
+            marginRight: 'auto',
             animation: 'fadeIn 0.3s ease-out',
             '@keyframes fadeIn': {
               from: { opacity: 0 },

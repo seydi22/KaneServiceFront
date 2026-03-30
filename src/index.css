@@ -310,11 +310,8 @@ pre code {
 .bg-tertiary { background-color: var(--bg-tertiary) !important; }
 
 /* ===== Responsive Design ===== */
-@media (max-width: 1024px) {
-  :root {
-    --sidebar-width: 200px;
-  }
-}
+/* Largeur menu = --sidebar-width (240px) partout ; ne pas la réduire ici sans
+   aligner Drawer + marge du <main>, sinon le contenu est décalé / chevauchée. */
 
 @media (max-width: 768px) {
   :root {

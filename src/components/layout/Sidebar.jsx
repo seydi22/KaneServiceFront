@@ -25,8 +25,6 @@ import { useNavigate, useLocation } from 'react-router-dom'
 import { useAuth } from '../../context/AuthContext'
 import { useSidebar } from '../../context/SidebarContext'
 
-const drawerWidth = 240
-
 const Sidebar = () => {
   const navigate = useNavigate()
   const location = useLocation()
@@ -201,7 +199,7 @@ const Sidebar = () => {
           display: { xs: 'block', md: 'none' },
           zIndex: (theme) => theme.zIndex.drawer - 1,
           '& .MuiDrawer-paper': {
-            width: drawerWidth,
+            width: 'var(--sidebar-width)',
             boxSizing: 'border-box',
             backgroundColor: 'var(--bg-primary)',
             borderRight: '1px solid var(--border-light)',
@@ -219,10 +217,10 @@ const Sidebar = () => {
         variant="permanent"
         sx={{
           display: { xs: 'none', md: 'block' },
-          width: drawerWidth,
+          width: 'var(--sidebar-width)',
           flexShrink: 0,
           '& .MuiDrawer-paper': {
-            width: drawerWidth,
+            width: 'var(--sidebar-width)',
             boxSizing: 'border-box',
             backgroundColor: 'var(--bg-primary)',
             borderRight: '1px solid var(--border-light)',
