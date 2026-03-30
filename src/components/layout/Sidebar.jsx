@@ -212,22 +212,22 @@ const Sidebar = () => {
         {drawerContent}
       </Drawer>
 
-      {/* Desktop Drawer */}
+      {/* Desktop : paper en flux (pas fixed) pour s’aligner avec le <main> dans la même rangée flex */}
       <Drawer
         variant="permanent"
         sx={{
           display: { xs: 'none', md: 'block' },
           width: 'var(--sidebar-width)',
           flexShrink: 0,
+          alignSelf: 'stretch',
           '& .MuiDrawer-paper': {
             width: 'var(--sidebar-width)',
             boxSizing: 'border-box',
+            position: 'relative',
+            height: '100%',
             backgroundColor: 'var(--bg-primary)',
             borderRight: '1px solid var(--border-light)',
             boxShadow: 'var(--shadow-sm)',
-            position: 'fixed',
-            top: { xs: '56px', sm: '64px' },
-            height: { xs: 'calc(100vh - 56px)', sm: 'calc(100vh - 64px)' },
             overflowY: 'auto',
             zIndex: (theme) => theme.zIndex.drawer,
             '&::-webkit-scrollbar': {
