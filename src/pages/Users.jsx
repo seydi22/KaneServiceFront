@@ -44,6 +44,12 @@ const Users = () => {
   })
 
   const { register, handleSubmit, formState: { errors }, reset, watch, setValue } = useForm()
+  const {
+    register: registerPwd,
+    handleSubmit: handleSubmitPwd,
+    formState: { errors: pwdErrors },
+    reset: resetPwd,
+  } = useForm({ defaultValues: { newPassword: '' } })
 
   // Points déjà assignés à un autre agent (un point = un agent). En édition, on exclut l'utilisateur en cours.
   const pointIdsAssignesAutresAgents = useMemo(() => {
@@ -66,7 +72,11 @@ const Users = () => {
     setError(null)
     try {
       const response = await usersService.getAll(filters)
-      setUsers(Array.isArray(response) ? response : response.data || [])
+      const raw = Array.isArray(response) ? response : response.data || []
+      const list = isSuperAdmin
+        ? raw
+        : raw.filter((u) => u?.role !== ROLES.SUPER_ADMIN)
+      setUsers(list)
       setError(null)
     } catch (err) {
       console.error('Erreur fetchUsers:', err)
@@ -166,7 +176,14 @@ Vérifiez dans votre backend :
     }
   }
 
-  const handleResetPassword = () => {
+  const openResetPasswordModal = (userId) => {
+    const id = userId?._id ?? userId?.id ?? userId
+    if (id == null || id === '') {
+      toast.error('Identifiant utilisateur invalide')
+      return
+    }
+    setSelectedUserId(id)
+    resetPwd({ newPassword: '' })
     setOpenPasswordModal(true)
   }
 
@@ -188,12 +205,16 @@ Vérifiez dans votre backend :
   }
 
   const onSubmitPassword = async (data) => {
+    if (selectedUserId == null || selectedUserId === '') {
+      toast.error('Aucun utilisateur sélectionné')
+      return
+    }
     try {
-      await usersService.resetPassword(selectedUserId, data.password)
+      await usersService.resetPassword(String(selectedUserId), data.newPassword)
       toast.success('Mot de passe réinitialisé avec succès')
       setOpenPasswordModal(false)
       setSelectedUserId(null)
-      reset()
+      resetPwd({ newPassword: '' })
     } catch (error) {
       toast.error(error.response?.data?.message || 'Erreur lors de la réinitialisation')
     }
@@ -247,12 +268,24 @@ Vérifiez dans votre backend :
         const isCurrentUser = userId === currentUser?.id
         return (
           <Box>
-            <IconButton size="small" onClick={() => handleEdit(row)} color="primary">
+            <IconButton
+              size="small"
+              type="button"
+              onClick={(e) => {
+                e.stopPropagation()
+                handleEdit(row)
+              }}
+              color="primary"
+            >
               <Edit />
             </IconButton>
             <IconButton
               size="small"
-              onClick={() => handleToggleStatus(userId)}
+              type="button"
+              onClick={(e) => {
+                e.stopPropagation()
+                handleToggleStatus(userId)
+              }}
               color={row.actif !== false ? 'warning' : 'success'}
               disabled={isCurrentUser}
             >
@@ -260,9 +293,11 @@ Vérifiez dans votre backend :
             </IconButton>
             <IconButton
               size="small"
-              onClick={() => {
-                setSelectedUserId(userId)
-                handleResetPassword()
+              type="button"
+              aria-label="Réinitialiser le mot de passe"
+              onClick={(e) => {
+                e.stopPropagation()
+                openResetPasswordModal(userId)
               }}
               color="info"
             >
@@ -270,7 +305,11 @@ Vérifiez dans votre backend :
             </IconButton>
             <IconButton
               size="small"
-              onClick={() => handleDelete(userId)}
+              type="button"
+              onClick={(e) => {
+                e.stopPropagation()
+                handleDelete(userId)
+              }}
               color="error"
               disabled={isCurrentUser}
             >
@@ -539,12 +578,12 @@ Vérifiez dans votre backend :
           onClose={() => {
             setOpenPasswordModal(false)
             setSelectedUserId(null)
-            reset()
+            resetPwd({ newPassword: '' })
           }}
           maxWidth="sm"
           fullWidth
         >
-          <form onSubmit={handleSubmit(onSubmitPassword)}>
+          <form onSubmit={handleSubmitPwd(onSubmitPassword)} noValidate>
             <DialogTitle>Réinitialiser le Mot de Passe</DialogTitle>
             <DialogContent>
               <Alert severity="info" sx={{ mb: 2 }}>
@@ -554,25 +593,27 @@ Vérifiez dans votre backend :
                 label="Nouveau Mot de Passe"
                 type="password"
                 fullWidth
-                {...register('password', {
+                autoComplete="new-password"
+                {...registerPwd('newPassword', {
                   required: 'Mot de passe requis',
                   minLength: {
                     value: 6,
                     message: 'Minimum 6 caractères'
                   }
                 })}
-                error={!!errors.password}
-                helperText={errors.password?.message}
+                error={!!pwdErrors.newPassword}
+                helperText={pwdErrors.newPassword?.message}
                 sx={{ mb: 2, mt: 1 }}
               />
             </DialogContent>
             <DialogActions>
               <Button
                 variant="outlined"
+                type="button"
                 onClick={() => {
                   setOpenPasswordModal(false)
                   setSelectedUserId(null)
-                  reset()
+                  resetPwd({ newPassword: '' })
                 }}
               >
                 Annuler
