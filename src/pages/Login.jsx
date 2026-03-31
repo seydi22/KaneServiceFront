@@ -20,7 +20,7 @@ const Login = () => {
     try {
       await login(data.matricule, data.password)
       const user = JSON.parse(localStorage.getItem('user'))
-      if (user?.role === 'admin') {
+      if (user?.role === 'admin' || user?.role === 'super_admin') {
         navigate('/dashboard/admin')
       } else {
         navigate('/dashboard/agent')

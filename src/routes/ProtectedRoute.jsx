@@ -25,11 +25,18 @@ const ProtectedRoute = ({ children, adminOnly = false, agentOnly = false }) => {
   }
 
   if (adminOnly && !isAdmin) {
-    return <Navigate to="/dashboard/agent" replace />
+    if (isAgent) {
+      return <Navigate to="/dashboard/agent" replace />
+    }
+    // Évite boucle admin ⟷ agent si le rôle n’est pas reconnu (ex. frontend non à jour).
+    return <Navigate to="/login" replace />
   }
 
   if (agentOnly && !isAgent) {
-    return <Navigate to="/dashboard/admin" replace />
+    if (isAdmin) {
+      return <Navigate to="/dashboard/admin" replace />
+    }
+    return <Navigate to="/login" replace />
   }
 
   return children

@@ -113,7 +113,11 @@ const Header = () => {
           </Typography>
           <Chip
             size="small"
-            label={(user?.role || '').toUpperCase() || 'USER'}
+            label={
+              user?.role === 'super_admin'
+                ? 'SUPER ADMIN'
+                : (user?.role || '').toUpperCase() || 'USER'
+            }
             sx={{
               display: { xs: 'none', sm: 'inline-flex' },
               height: 24,

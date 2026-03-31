@@ -27,7 +27,7 @@ import Button from '../components/common/Button'
 import { useAuth } from '../context/AuthContext'
 
 const Users = () => {
-  const { user: currentUser } = useAuth()
+  const { user: currentUser, isSuperAdmin } = useAuth()
   const [loading, setLoading] = useState(true)
   const [users, setUsers] = useState([])
   const [pointsService, setPointsService] = useState([])
@@ -209,13 +209,17 @@ Vérifiez dans votre backend :
     {
       key: 'role',
       label: 'Rôle',
-      render: (row) => (
-        <Chip
-          label={row.role === ROLES.ADMIN ? 'Admin' : 'Agent'}
-          color={row.role === ROLES.ADMIN ? 'primary' : 'default'}
-          size="small"
-        />
-      )
+      render: (row) => {
+        const label =
+          row.role === ROLES.SUPER_ADMIN
+            ? 'Super admin'
+            : row.role === ROLES.ADMIN
+              ? 'Admin'
+              : 'Agent'
+        const color =
+          row.role === ROLES.SUPER_ADMIN ? 'secondary' : row.role === ROLES.ADMIN ? 'primary' : 'default'
+        return <Chip label={label} color={color} size="small" />
+      }
     },
     { key: 'pays', label: 'Pays' },
     {
@@ -307,6 +311,9 @@ Vérifiez dans votre backend :
             <MenuItem value="">Tous</MenuItem>
             <MenuItem value={ROLES.ADMIN}>Admin</MenuItem>
             <MenuItem value={ROLES.AGENT}>Agent</MenuItem>
+            {isSuperAdmin ? (
+              <MenuItem value={ROLES.SUPER_ADMIN}>Super admin</MenuItem>
+            ) : null}
           </TextField>
           <TextField
             label="Pays"

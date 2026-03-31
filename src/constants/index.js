@@ -52,6 +52,7 @@ export const DEVISES = ['XOF', 'MRO', 'EUR', 'USD']
 export const DEVISE_CANAL_PLUS = 'MRO'
 
 export const ROLES = {
+  SUPER_ADMIN: 'super_admin',
   ADMIN: 'admin',
   AGENT: 'agent'
 }
