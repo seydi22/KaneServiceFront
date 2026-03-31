@@ -15,8 +15,11 @@ export const CATEGORIES = {
   [SERVICES.CANAL_PLUS]: ['Nouveau_Abonnement', 'Paiement_Facture']
 }
 
-/** Change : montant devise étrangère + devise EUR/USD + MRU saisi manuellement */
+/** Change : montant devise étrangère + devise (EUR / USD / FCFA XOF) + MRU saisi manuellement */
 export const CATEGORIES_CHANGE_FOREX = ['Vente', 'Achat']
+
+/** Devises proposées pour le montant « étranger » du Change (Vente/Achat) */
+export const DEVISES_CHANGE_FOREX = ['EUR', 'USD', 'XOF']
 
 // Catégories qui nécessitent montantRecu, montantEnvoye, deviseRecu et deviseEnvoye
 export const CATEGORIES_WITH_TRANSFER = [

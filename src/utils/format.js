@@ -44,9 +44,10 @@ export const formatOperationMontantResume = (op) => {
   if (!op) return 'N/A'
   if (op.service === 'Change' && (op.categorie === 'Vente' || op.categorie === 'Achat')) {
     const d = op.deviseChange || '—'
-    const sym = d === 'USD' ? '$' : d === 'EUR' ? '€' : ''
+    const deviseExt =
+      d === 'USD' ? 'USD ($)' : d === 'EUR' ? 'EUR (€)' : d === 'XOF' ? 'XOF (FCFA)' : String(d)
     const ext = op.montantDeviseEtrangere != null
-      ? `${new Intl.NumberFormat('fr-FR').format(Number(op.montantDeviseEtrangere))} ${d}${sym ? ` (${sym})` : ''}`
+      ? `${new Intl.NumberFormat('fr-FR').format(Number(op.montantDeviseEtrangere))} ${deviseExt}`
       : '—'
     const mru = op.montantMru != null
       ? `${new Intl.NumberFormat('fr-FR').format(Number(op.montantMru))} MRU`

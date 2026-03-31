@@ -3,7 +3,7 @@ import { useForm, Controller } from 'react-hook-form'
 import { TextField, MenuItem, Box, Paper } from '@mui/material'
 import { toast } from 'react-toastify'
 import { operationsService } from '../../services/operations'
-import { SERVICES, CATEGORIES, CATEGORIES_LABELS, SERVICE_LABELS, DEVISES, DEVISE_CANAL_PLUS, CATEGORIES_WITH_TRANSFER, CATEGORIES_CHANGE_FOREX } from '../../constants'
+import { SERVICES, CATEGORIES, CATEGORIES_LABELS, SERVICE_LABELS, DEVISES, DEVISE_CANAL_PLUS, CATEGORIES_WITH_TRANSFER, CATEGORIES_CHANGE_FOREX, DEVISES_CHANGE_FOREX } from '../../constants'
 import Modal from '../common/Modal'
 import Button from '../common/Button'
 import ServiceLogo from '../common/ServiceLogo'
@@ -155,8 +155,8 @@ const OperationModal = ({ open, onClose, onSuccess }) => {
           setLoading(false)
           return
         }
-        if (data.deviseChange !== 'EUR' && data.deviseChange !== 'USD') {
-          toast.error('Choisissez une devise : Euro ou Dollar.')
+        if (!DEVISES_CHANGE_FOREX.includes(data.deviseChange)) {
+          toast.error('Choisissez une devise : Euro, Dollar ou FCFA (XOF).')
           setLoading(false)
           return
         }
@@ -345,7 +345,7 @@ const OperationModal = ({ open, onClose, onSuccess }) => {
                   fullWidth
                   value={field.value ?? 'EUR'}
                   error={!!errors.deviseChange}
-                  helperText={errors.deviseChange?.message || 'Euro ou dollar — drapeaux indicatifs'}
+                  helperText={errors.deviseChange?.message || 'Euro, dollar ou FCFA (XOF)'}
                   sx={{ mb: 2 }}
                 >
                   <MenuItem value="EUR">
@@ -368,6 +368,17 @@ const OperationModal = ({ open, onClose, onSuccess }) => {
                         sx={{ width: 28, height: 21, objectFit: 'cover', borderRadius: '4px', boxShadow: '0 0 0 1px rgba(0,0,0,0.08)' }}
                       />
                       <span>Dollar ($)</span>
+                    </Box>
+                  </MenuItem>
+                  <MenuItem value="XOF">
+                    <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.5 }}>
+                      <Box
+                        component="img"
+                        src="https://flagcdn.com/w40/sn.png"
+                        alt=""
+                        sx={{ width: 28, height: 21, objectFit: 'cover', borderRadius: '4px', boxShadow: '0 0 0 1px rgba(0,0,0,0.08)' }}
+                      />
+                      <span>Franc CFA — FCFA (XOF)</span>
                     </Box>
                   </MenuItem>
                 </TextField>

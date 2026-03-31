@@ -261,7 +261,7 @@ export const exportReportToExcelMultiSheets = async (reportData, filename = 'rap
       'Date',
       'Service',
       'Type d’opération',
-      'Devise (EUR/USD)',
+      'Devise (EUR/USD/XOF)',
       'Montant devise étrangère',
       'Montant MRU (saisi)',
       'Synthèse montants',
