@@ -347,7 +347,7 @@ const OperationModal = ({ open, onClose, onSuccess }) => {
               )}
             />
             <TextField
-              label="Équivalent en ouguiya (MRU)"
+              label="Montant en ouguiya (MRU)"
               type="number"
               fullWidth
               inputProps={{ step: 'any', min: 0 }}
@@ -358,17 +358,9 @@ const OperationModal = ({ open, onClose, onSuccess }) => {
               error={!!errors.montantMru}
               helperText={
                 errors.montantMru?.message ||
-                'Saisie manuelle uniquement — aucun calcul automatique'
+                'Montant toujours en MRU, saisi manuellement — sans calcul automatique'
               }
               sx={{ mb: 2 }}
-            />
-            <TextField
-              label="Devise de sortie (équivalent)"
-              fullWidth
-              disabled
-              value="Ouguiya (MRU)"
-              sx={{ mb: 2 }}
-              helperText="Toujours en MRU pour cette opération"
             />
           </>
         ) : requiresTransferFields ? (
