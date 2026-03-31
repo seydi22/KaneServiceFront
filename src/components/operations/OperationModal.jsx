@@ -184,11 +184,15 @@ const OperationModal = ({ open, onClose, onSuccess }) => {
       onSuccess()
     } catch (error) {
       const payload = error.response?.data
-      const firstVal =
-        Array.isArray(payload?.errors) && payload.errors[0]?.msg
-          ? payload.errors[0].msg
-          : null
-      toast.error(firstVal || payload?.message || 'Erreur lors de la création')
+      const fromList =
+        Array.isArray(payload?.errors) && payload.errors.length
+          ? payload.errors.map((e) => e?.msg || e?.message || '').filter(Boolean).join(' · ')
+          : ''
+      const detail = fromList || payload?.message || ''
+      if (import.meta.env.DEV) {
+        console.error('[POST /operations]', error.response?.status, payload)
+      }
+      toast.error(detail || 'Erreur lors de la création')
     } finally {
       setLoading(false)
     }
