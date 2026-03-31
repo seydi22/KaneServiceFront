@@ -3,7 +3,7 @@ import { useForm, Controller } from 'react-hook-form'
 import { TextField, MenuItem, Box, Paper } from '@mui/material'
 import { toast } from 'react-toastify'
 import { operationsService } from '../../services/operations'
-import { SERVICES, CATEGORIES, CATEGORIES_LABELS, SERVICE_LABELS, DEVISES, DEVISE_CANAL_PLUS, CATEGORIES_WITH_TRANSFER } from '../../constants'
+import { SERVICES, CATEGORIES, CATEGORIES_LABELS, SERVICE_LABELS, DEVISES, DEVISE_CANAL_PLUS, CATEGORIES_WITH_TRANSFER, CATEGORIES_CHANGE_FOREX } from '../../constants'
 import Modal from '../common/Modal'
 import Button from '../common/Button'
 import ServiceLogo from '../common/ServiceLogo'
@@ -24,6 +24,9 @@ const OperationModal = ({ open, onClose, onSuccess }) => {
       devise: '',
       deviseRecu: '',
       deviseEnvoye: '',
+      montantDeviseEtrangere: '',
+      deviseChange: 'EUR',
+      montantMru: '',
       commentaire: ''
     }
   })
@@ -33,6 +36,8 @@ const OperationModal = ({ open, onClose, onSuccess }) => {
   
   // Déterminer si la catégorie nécessite montantRecu/montantEnvoye ou montant
   const requiresTransferFields = categorie && CATEGORIES_WITH_TRANSFER.includes(categorie)
+  const requiresChangeForexFields =
+    service === SERVICES.CHANGE && categorie && CATEGORIES_CHANGE_FOREX.includes(categorie)
   const requiresDualCurrencyFields =
     (service === SERVICES.ORANGE_MONEY || service === SERVICES.WAVE) &&
     (categorie === 'Transfert' || categorie === 'Retrait')
@@ -57,6 +62,9 @@ const OperationModal = ({ open, onClose, onSuccess }) => {
       setValue('devise', '')
       setValue('deviseRecu', '')
       setValue('deviseEnvoye', '')
+      setValue('montantDeviseEtrangere', '')
+      setValue('deviseChange', 'EUR')
+      setValue('montantMru', '')
     }
   }, [service, setValue])
 
@@ -70,11 +78,29 @@ const OperationModal = ({ open, onClose, onSuccess }) => {
         setValue('devise', '')
         setValue('deviseRecu', '')
         setValue('deviseEnvoye', '')
+        setValue('montantDeviseEtrangere', '')
+        setValue('deviseChange', 'EUR')
+        setValue('montantMru', '')
+      } else if (requiresChangeForexFields) {
+        setValue('montant', '')
+        setValue('montantRecu', '')
+        setValue('montantEnvoye', '')
+        setValue('devise', '')
+        setValue('deviseRecu', '')
+        setValue('deviseEnvoye', '')
+        setValue('montantFcfa', '')
+        setValue('montantOuguiya', '')
+        setValue('montantDeviseEtrangere', '')
+        setValue('deviseChange', 'EUR')
+        setValue('montantMru', '')
       } else if (requiresTransferFields) {
         setValue('montantFcfa', '')
         setValue('montantOuguiya', '')
         setValue('montant', '')
         setValue('devise', '')
+        setValue('montantDeviseEtrangere', '')
+        setValue('deviseChange', 'EUR')
+        setValue('montantMru', '')
         // Définir les devises par défaut selon le type de transfert
         if (categorie === 'Transfert_FCFA_to_Ouguiya' || categorie === 'FCFA_to_Ouguiya') {
           setValue('deviseRecu', 'XOF')
@@ -90,13 +116,16 @@ const OperationModal = ({ open, onClose, onSuccess }) => {
         setValue('deviseEnvoye', '')
         setValue('montantFcfa', '')
         setValue('montantOuguiya', '')
+        setValue('montantDeviseEtrangere', '')
+        setValue('deviseChange', 'EUR')
+        setValue('montantMru', '')
         setValue(
           'devise',
           service === SERVICES.CANAL_PLUS ? DEVISE_CANAL_PLUS : 'XOF'
         )
       }
     }
-  }, [categorie, requiresTransferFields, requiresDualCurrencyFields, service, setValue])
+  }, [categorie, requiresTransferFields, requiresChangeForexFields, requiresDualCurrencyFields, service, setValue])
 
   const onSubmit = async (data) => {
     setLoading(true)
@@ -112,6 +141,10 @@ const OperationModal = ({ open, onClose, onSuccess }) => {
       if (requiresDualCurrencyFields) {
         operationData.montantFcfa = parseFloat(data.montantFcfa)
         operationData.montantOuguiya = parseFloat(data.montantOuguiya)
+      } else if (requiresChangeForexFields) {
+        operationData.montantDeviseEtrangere = parseFloat(data.montantDeviseEtrangere)
+        operationData.deviseChange = data.deviseChange
+        operationData.montantMru = parseFloat(data.montantMru)
       } else if (requiresTransferFields) {
         operationData.montantRecu = parseFloat(data.montantRecu)
         operationData.deviseRecu = data.deviseRecu
@@ -256,6 +289,86 @@ const OperationModal = ({ open, onClose, onSuccess }) => {
               error={!!errors.montantOuguiya}
               helperText={errors.montantOuguiya?.message}
               sx={{ mb: 2 }}
+            />
+          </>
+        ) : requiresChangeForexFields ? (
+          <>
+            <TextField
+              label="Montant en devise étrangère"
+              type="number"
+              fullWidth
+              inputProps={{ step: 'any', min: 0 }}
+              {...register('montantDeviseEtrangere', {
+                required: 'Montant requis',
+                min: { value: 0.0001, message: 'Le montant doit être positif' }
+              })}
+              error={!!errors.montantDeviseEtrangere}
+              helperText={errors.montantDeviseEtrangere?.message}
+              sx={{ mb: 2 }}
+            />
+            <Controller
+              name="deviseChange"
+              control={control}
+              rules={{ required: 'Devise requise' }}
+              render={({ field }) => (
+                <TextField
+                  {...field}
+                  label="Devise"
+                  select
+                  fullWidth
+                  value={field.value ?? 'EUR'}
+                  error={!!errors.deviseChange}
+                  helperText={errors.deviseChange?.message || 'Euro ou dollar — drapeaux indicatifs'}
+                  sx={{ mb: 2 }}
+                >
+                  <MenuItem value="EUR">
+                    <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.5 }}>
+                      <Box
+                        component="img"
+                        src="https://flagcdn.com/w40/eu.png"
+                        alt=""
+                        sx={{ width: 28, height: 21, objectFit: 'cover', borderRadius: '4px', boxShadow: '0 0 0 1px rgba(0,0,0,0.08)' }}
+                      />
+                      <span>Euro (€)</span>
+                    </Box>
+                  </MenuItem>
+                  <MenuItem value="USD">
+                    <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.5 }}>
+                      <Box
+                        component="img"
+                        src="https://flagcdn.com/w40/us.png"
+                        alt=""
+                        sx={{ width: 28, height: 21, objectFit: 'cover', borderRadius: '4px', boxShadow: '0 0 0 1px rgba(0,0,0,0.08)' }}
+                      />
+                      <span>Dollar ($)</span>
+                    </Box>
+                  </MenuItem>
+                </TextField>
+              )}
+            />
+            <TextField
+              label="Équivalent en ouguiya (MRU)"
+              type="number"
+              fullWidth
+              inputProps={{ step: 'any', min: 0 }}
+              {...register('montantMru', {
+                required: 'Montant MRU requis',
+                min: { value: 0.0001, message: 'Le montant doit être positif' }
+              })}
+              error={!!errors.montantMru}
+              helperText={
+                errors.montantMru?.message ||
+                'Saisie manuelle uniquement — aucun calcul automatique'
+              }
+              sx={{ mb: 2 }}
+            />
+            <TextField
+              label="Devise de sortie (équivalent)"
+              fullWidth
+              disabled
+              value="Ouguiya (MRU)"
+              sx={{ mb: 2 }}
+              helperText="Toujours en MRU pour cette opération"
             />
           </>
         ) : requiresTransferFields ? (

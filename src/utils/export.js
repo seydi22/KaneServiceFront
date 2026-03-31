@@ -2,6 +2,7 @@ import * as XLSX from 'xlsx'
 import ExcelJS from 'exceljs'
 import { jsPDF } from 'jspdf'
 import { autoTable } from 'jspdf-autotable'
+import { formatOperationMontantResume } from './format'
 
 // Styles réutilisables pour un rendu professionnel
 const HEADER_FILL = { type: 'pattern', pattern: 'solid', fgColor: { argb: 'FF1e3a5f' } }
@@ -252,30 +253,40 @@ export const exportReportToExcelMultiSheets = async (reportData, filename = 'rap
   // —— Feuille Opérations (détail) ——
   if (reportData.operations?.length) {
     const wsOp = workbook.addWorksheet('Opérations (détail)', { views: [{ showGridLines: true }] })
-    ;[18, 14, 18, 28, 16, 10, 18, 10, 10, 24].forEach((w, i) => { wsOp.getColumn(i + 1).width = w })
+    ;[18, 12, 14, 8, 14, 14, 28, 16, 10, 18, 10, 10, 24].forEach((w, i) => { wsOp.getColumn(i + 1).width = w })
     wsOp.addRow(['Liste détaillée des opérations']).font = TITLE_FONT
     if (periodLabel) wsOp.addRow([`Période : ${periodLabel}`]).font = SUBTITLE_FONT
     wsOp.addRow([])
     const opHeader = wsOp.addRow([
-      'Date', 'Service', 'Catégorie', 'Montant', 'Agent', 'Matricule', 'Point de service', 'Ville', 'Pays', 'Commentaire'
+      'Date',
+      'Service',
+      'Type d’opération',
+      'Devise (EUR/USD)',
+      'Montant devise étrangère',
+      'Montant MRU (saisi)',
+      'Synthèse montants',
+      'Agent',
+      'Matricule',
+      'Point de service',
+      'Ville',
+      'Pays',
+      'Commentaire'
     ])
     styleHeaderRow(opHeader)
     reportData.operations.forEach((op, idx) => {
-      let montantDisplay = 'N/A'
-      if (op.montantFcfa != null || op.montantOuguiya != null) {
-        const fcfa = op.montantFcfa != null ? `${op.montantFcfa} XOF` : '0 XOF'
-        const mru = op.montantOuguiya != null ? `${op.montantOuguiya} MRU` : '0 MRU'
-        montantDisplay = `FCFA: ${fcfa} | Ouguiya: ${mru}`
-      } else if (op.montantRecu != null && op.montantEnvoye != null) {
-        montantDisplay = `Reçu: ${op.montantRecu} ${op.deviseRecu || 'XOF'} | Envoyé: ${op.montantEnvoye} ${op.deviseEnvoye || 'XOF'}`
-      } else if (op.montant != null) {
-        montantDisplay = `${op.montant} ${op.devise || 'XOF'}`
-      }
+      const isChangeForex = op.service === 'Change' && (op.categorie === 'Vente' || op.categorie === 'Achat')
+      const deviseCol = isChangeForex ? (op.deviseChange ?? '—') : '—'
+      const montantEtr = isChangeForex && op.montantDeviseEtrangere != null ? op.montantDeviseEtrangere : '—'
+      const montantMruCol = isChangeForex && op.montantMru != null ? op.montantMru : '—'
+      const montantDisplay = formatOperationMontantResume(op)
       const agentName = op.agent ? [op.agent.prenom, op.agent.nom].filter(Boolean).join(' ') : '-'
       const row = wsOp.addRow([
         op.dateOperation ? new Date(op.dateOperation).toLocaleString('fr-FR') : '-',
         op.service ?? '-',
         op.categorie ?? '-',
+        deviseCol,
+        montantEtr,
+        montantMruCol,
         montantDisplay,
         agentName,
         op.agent?.matricule ?? '-',
@@ -418,25 +429,23 @@ export const exportReportToPDF = (reportData, filename = 'rapport') => {
     autoTable(doc, {
       startY: doc.lastAutoTable.finalY + 16,
       head: [[
-        'Date', 'Service', 'Catégorie', 'Montant',
+        'Date', 'Service', 'Type', 'Devise', 'M. étranger', 'MRU saisi', 'Synthèse',
         'Agent', 'Matricule', 'Point de service', 'Pays'
       ]],
       body: ops.map((op) => {
-        let montantDisplay = 'N/A'
-        if (op.montantFcfa != null || op.montantOuguiya != null) {
-          const fcfa = op.montantFcfa != null ? `${op.montantFcfa} XOF` : '0 XOF'
-          const mru = op.montantOuguiya != null ? `${op.montantOuguiya} MRU` : '0 MRU'
-          montantDisplay = `FCFA: ${fcfa} | Ouguiya: ${mru}`
-        } else if (op.montantRecu != null && op.montantEnvoye != null) {
-          montantDisplay = `Reçu: ${op.montantRecu} ${op.deviseRecu || 'XOF'} | Envoyé: ${op.montantEnvoye} ${op.deviseEnvoye || 'XOF'}`
-        } else if (op.montant != null) {
-          montantDisplay = `${op.montant} ${op.devise || 'XOF'}`
-        }
+        const isChangeForex = op.service === 'Change' && (op.categorie === 'Vente' || op.categorie === 'Achat')
+        const deviseCol = isChangeForex ? (op.deviseChange ?? '—') : '—'
+        const montantEtr = isChangeForex && op.montantDeviseEtrangere != null ? String(op.montantDeviseEtrangere) : '—'
+        const montantMruCol = isChangeForex && op.montantMru != null ? String(op.montantMru) : '—'
+        const montantDisplay = formatOperationMontantResume(op)
         const agent = op.agent ? [op.agent.prenom, op.agent.nom].filter(Boolean).join(' ') : '-'
         return [
           op.dateOperation ? new Date(op.dateOperation).toLocaleString('fr-FR') : '-',
           op.service ?? '-',
           op.categorie ?? '-',
+          deviseCol,
+          montantEtr,
+          montantMruCol,
           montantDisplay,
           agent,
           op.agent?.matricule ?? '-',
@@ -444,7 +453,7 @@ export const exportReportToPDF = (reportData, filename = 'rapport') => {
           op.pays ?? '-',
         ]
       }),
-      styles: { fontSize: 7 },
+      styles: { fontSize: 6 },
       headStyles: { fillColor: [30, 58, 95] },
       margin: { left: 40, right: 40 },
       theme: 'striped',

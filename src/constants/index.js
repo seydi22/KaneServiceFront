@@ -11,13 +11,15 @@ export const CATEGORIES = {
   // Orange Money & Wave : catégories simplifiées
   [SERVICES.ORANGE_MONEY]: ['Transfert', 'Retrait'],
   [SERVICES.WAVE]: ['Transfert', 'Retrait'],
-  [SERVICES.CHANGE]: ['FCFA_to_Ouguiya', 'Ouguiya_to_FCFA'],
+  [SERVICES.CHANGE]: ['Vente', 'Achat'],
   [SERVICES.CANAL_PLUS]: ['Nouveau_Abonnement', 'Paiement_Facture']
 }
 
+/** Change : montant devise étrangère + devise EUR/USD + MRU saisi manuellement */
+export const CATEGORIES_CHANGE_FOREX = ['Vente', 'Achat']
+
 // Catégories qui nécessitent montantRecu, montantEnvoye, deviseRecu et deviseEnvoye
 export const CATEGORIES_WITH_TRANSFER = [
-  // Change & ancien modèle (conservé pour compatibilité)
   'Transfert_FCFA_to_Ouguiya',
   'Transfert_Ouguiya_to_FCFA',
   'FCFA_to_Ouguiya',
@@ -29,8 +31,10 @@ export const CATEGORIES_LABELS = {
   'Transfert_FCFA_to_Ouguiya': 'Transfert FCFA → Ouguiya',
   'Transfert_Ouguiya_to_FCFA': 'Transfert Ouguiya → FCFA',
   'Retrait': 'Retrait',
-  'FCFA_to_Ouguiya': 'FCFA → Ouguiya',
-  'Ouguiya_to_FCFA': 'Ouguiya → FCFA',
+  'FCFA_to_Ouguiya': 'Opération (ancien format)',
+  'Ouguiya_to_FCFA': 'Opération (ancien format)',
+  'Vente': 'Vente',
+  'Achat': 'Achat',
   'Nouveau_Abonnement': 'Nouveau Abonnement',
   'Paiement_Facture': 'Paiement Facture'
 }

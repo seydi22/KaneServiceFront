@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react'
 import { Box, Typography, TextField, MenuItem, Button as MuiButton, IconButton, Paper, InputAdornment, Tooltip } from '@mui/material'
 import { Search, FileDownload, PictureAsPdf, AddCircle, Tune } from '@mui/icons-material'
 import { toast } from 'react-toastify'
-import { formatDateTime } from '../utils/format'
+import { formatDateTime, formatOperationMontantResume } from '../utils/format'
 import { operationsService } from '../services/operations'
 import { reportsService } from '../services/reports'
 import { exportToExcel, exportToPDF } from '../utils/export'
@@ -75,22 +75,15 @@ const Operations = () => {
   const handleExportExcel = () => {
     try {
       const exportData = operations.map(op => {
-        // Déterminer le montant à afficher selon le type d'opération
-        let montantDisplay = 'N/A'
-        if (op.montantFcfa != null || op.montantOuguiya != null) {
-          const fcfa = op.montantFcfa != null ? `${op.montantFcfa} XOF` : '0 XOF'
-          const mru = op.montantOuguiya != null ? `${op.montantOuguiya} MRU` : '0 MRU'
-          montantDisplay = `FCFA: ${fcfa} | Ouguiya: ${mru}`
-        } else if (op.montantRecu && op.montantEnvoye) {
-          montantDisplay = `Reçu: ${op.montantRecu} ${op.deviseRecu || 'XOF'} | Envoyé: ${op.montantEnvoye} ${op.deviseEnvoye || 'XOF'}`
-        } else if (op.montant) {
-          montantDisplay = `${op.montant} ${op.devise || 'XOF'}`
-        }
+        const montantDisplay = formatOperationMontantResume(op)
 
         return {
           Date: formatDateTime(op.dateOperation || op.date),
           Service: SERVICE_LABELS[op.service] || op.service,
           Catégorie: CATEGORIES_LABELS[op.categorie] || op.categorie,
+          'Devise (Change)': op.service === 'Change' && (op.categorie === 'Vente' || op.categorie === 'Achat') ? (op.deviseChange || '') : '',
+          'Montant devise étrangère': op.service === 'Change' && (op.categorie === 'Vente' || op.categorie === 'Achat') && op.montantDeviseEtrangere != null ? op.montantDeviseEtrangere : '',
+          'Montant MRU (saisi)': op.service === 'Change' && (op.categorie === 'Vente' || op.categorie === 'Achat') && op.montantMru != null ? op.montantMru : '',
           Montant: montantDisplay,
           Agent: op.agent ? (typeof op.agent === 'object' ? `${op.agent.prenom} ${op.agent.nom}` : op.agent) : 'N/A',
           'Point Service': op.pointService ? (typeof op.pointService === 'object' ? op.pointService.nom : op.pointService) : 'N/A',
@@ -111,28 +104,24 @@ const Operations = () => {
         { key: 'date', label: 'Date' },
         { key: 'service', label: 'Service' },
         { key: 'categorie', label: 'Catégorie' },
+        { key: 'deviseChange', label: 'Devise' },
+        { key: 'montantEtranger', label: 'Montant étranger' },
+        { key: 'montantMru', label: 'MRU' },
         { key: 'montant', label: 'Montant' },
         { key: 'agent', label: 'Agent' },
         { key: 'pointService', label: 'Point Service' },
         { key: 'pays', label: 'Pays' }
       ]
       const exportData = operations.map(op => {
-        // Déterminer le montant à afficher selon le type d'opération
-        let montantDisplay = 'N/A'
-        if (op.montantFcfa != null || op.montantOuguiya != null) {
-          const fcfa = op.montantFcfa != null ? `${op.montantFcfa} XOF` : '0 XOF'
-          const mru = op.montantOuguiya != null ? `${op.montantOuguiya} MRU` : '0 MRU'
-          montantDisplay = `FCFA: ${fcfa} | Ouguiya: ${mru}`
-        } else if (op.montantRecu && op.montantEnvoye) {
-          montantDisplay = `Reçu: ${op.montantRecu} ${op.deviseRecu || 'XOF'} | Envoyé: ${op.montantEnvoye} ${op.deviseEnvoye || 'XOF'}`
-        } else if (op.montant) {
-          montantDisplay = `${op.montant} ${op.devise || 'XOF'}`
-        }
+        const montantDisplay = formatOperationMontantResume(op)
 
         return {
           date: formatDateTime(op.dateOperation || op.date),
           service: SERVICE_LABELS[op.service] || op.service,
           categorie: CATEGORIES_LABELS[op.categorie] || op.categorie,
+          deviseChange: op.service === 'Change' && (op.categorie === 'Vente' || op.categorie === 'Achat') ? (op.deviseChange || '') : '',
+          montantEtranger: op.service === 'Change' && (op.categorie === 'Vente' || op.categorie === 'Achat') && op.montantDeviseEtrangere != null ? String(op.montantDeviseEtrangere) : '',
+          montantMru: op.service === 'Change' && (op.categorie === 'Vente' || op.categorie === 'Achat') && op.montantMru != null ? String(op.montantMru) : '',
           montant: montantDisplay,
           agent: op.agent ? (typeof op.agent === 'object' ? `${op.agent.prenom} ${op.agent.nom}` : op.agent) : 'N/A',
           pointService: op.pointService ? (typeof op.pointService === 'object' ? op.pointService.nom : op.pointService) : 'N/A',
@@ -169,19 +158,7 @@ const Operations = () => {
     {
       key: 'montant',
       label: 'Montant',
-      render: (row) => {
-        if (!row) return 'N/A'
-        if (row.montantFcfa != null || row.montantOuguiya != null) {
-          const fcfa = row.montantFcfa != null ? `${row.montantFcfa} XOF` : '0 XOF'
-          const mru = row.montantOuguiya != null ? `${row.montantOuguiya} MRU` : '0 MRU'
-          return `FCFA: ${fcfa} | Ouguiya: ${mru}`
-        } else if (row.montantRecu && row.montantEnvoye) {
-          return `${row.montantRecu} ${row.deviseRecu || 'XOF'} → ${row.montantEnvoye} ${row.deviseEnvoye || 'XOF'}`
-        } else if (row.montant) {
-          return `${row.montant} ${row.devise || 'XOF'}`
-        }
-        return 'N/A'
-      }
+      render: (row) => (row ? formatOperationMontantResume(row) : 'N/A')
     },
     { key: 'agent', label: 'Agent', render: (row) => (row.agent ? (typeof row.agent === 'object' ? `${row.agent.prenom} ${row.agent.nom}` : row.agent) : 'N/A') },
     { key: 'pointService', label: 'Point Service', render: (row) => (row.pointService ? (typeof row.pointService === 'object' ? row.pointService.nom : row.pointService) : 'N/A') },

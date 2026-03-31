@@ -2,7 +2,7 @@ import { useState, useEffect, useCallback } from 'react'
 import { Box, Grid, Typography, Button as MuiButton, TextField, MenuItem, Paper, InputAdornment } from '@mui/material'
 import { AddCircle, Search, Tune } from '@mui/icons-material'
 import { toast } from 'react-toastify'
-import { formatDate } from '../utils/format'
+import { formatDate, formatOperationMontantResume } from '../utils/format'
 import { dashboardService } from '../services/dashboard'
 import { SERVICES, CATEGORIES, CATEGORIES_LABELS, SERVICE_LABELS } from '../constants'
 import Layout from '../components/layout/Layout'
@@ -84,20 +84,7 @@ const DashboardAgent = () => {
     {
       key: 'montant',
       label: 'Montant',
-      render: (row) => {
-        if (!row) return 'N/A'
-        if (row.montantFcfa != null || row.montantOuguiya != null) {
-          const fcfa = row.montantFcfa != null ? `${row.montantFcfa} XOF` : '0 XOF'
-          const mru = row.montantOuguiya != null ? `${row.montantOuguiya} MRU` : '0 MRU'
-          return `FCFA: ${fcfa} | Ouguiya: ${mru}`
-        }
-        if (row.montantRecu && row.montantEnvoye) {
-          return `${row.montantRecu} ${row.deviseRecu || 'XOF'} → ${row.montantEnvoye} ${row.deviseEnvoye || 'XOF'}`
-        } else if (row.montant) {
-          return `${row.montant} ${row.devise || 'XOF'}`
-        }
-        return 'N/A'
-      }
+      render: (row) => (row ? formatOperationMontantResume(row) : 'N/A')
     },
     { key: 'commentaire', label: 'Commentaire' }
   ]
