@@ -130,28 +130,46 @@ const OperationModal = ({ open, onClose, onSuccess }) => {
   const onSubmit = async (data) => {
     setLoading(true)
     try {
-      // Préparer les données selon le type de catégorie
+      // Branchement sur les valeurs du formulaire (évite une fermeture obsolète au moment du submit)
+      const dualOrangeWave =
+        (data.service === SERVICES.ORANGE_MONEY || data.service === SERVICES.WAVE) &&
+        (data.categorie === 'Transfert' || data.categorie === 'Retrait')
+      const changeForex =
+        data.service === SERVICES.CHANGE && CATEGORIES_CHANGE_FOREX.includes(data.categorie)
+      const legacyTransfer = data.categorie && CATEGORIES_WITH_TRANSFER.includes(data.categorie)
+
       const operationData = {
         service: data.service,
         categorie: data.categorie,
         commentaire: data.commentaire || ''
       }
 
-      // Ajouter les champs appropriés selon la catégorie
-      if (requiresDualCurrencyFields) {
-        operationData.montantFcfa = parseFloat(data.montantFcfa)
-        operationData.montantOuguiya = parseFloat(data.montantOuguiya)
-      } else if (requiresChangeForexFields) {
-        operationData.montantDeviseEtrangere = parseFloat(data.montantDeviseEtrangere)
+      if (dualOrangeWave) {
+        operationData.montantFcfa = Number(data.montantFcfa)
+        operationData.montantOuguiya = Number(data.montantOuguiya)
+      } else if (changeForex) {
+        const mde = Number(String(data.montantDeviseEtrangere).replace(',', '.'))
+        const mmru = Number(String(data.montantMru).replace(',', '.'))
+        if (!Number.isFinite(mde) || mde <= 0 || !Number.isFinite(mmru) || mmru <= 0) {
+          toast.error('Indiquez des montants valides (nombres strictement positifs).')
+          setLoading(false)
+          return
+        }
+        if (data.deviseChange !== 'EUR' && data.deviseChange !== 'USD') {
+          toast.error('Choisissez une devise : Euro ou Dollar.')
+          setLoading(false)
+          return
+        }
+        operationData.montantDeviseEtrangere = mde
         operationData.deviseChange = data.deviseChange
-        operationData.montantMru = parseFloat(data.montantMru)
-      } else if (requiresTransferFields) {
-        operationData.montantRecu = parseFloat(data.montantRecu)
+        operationData.montantMru = mmru
+      } else if (legacyTransfer) {
+        operationData.montantRecu = Number(data.montantRecu)
         operationData.deviseRecu = data.deviseRecu
-        operationData.montantEnvoye = parseFloat(data.montantEnvoye)
+        operationData.montantEnvoye = Number(data.montantEnvoye)
         operationData.deviseEnvoye = data.deviseEnvoye
       } else {
-        operationData.montant = parseFloat(data.montant)
+        operationData.montant = Number(data.montant)
         operationData.devise =
           data.service === SERVICES.CANAL_PLUS
             ? DEVISE_CANAL_PLUS
@@ -165,7 +183,12 @@ const OperationModal = ({ open, onClose, onSuccess }) => {
       window.dispatchEvent(new CustomEvent('operationCreated'))
       onSuccess()
     } catch (error) {
-      toast.error(error.response?.data?.message || 'Erreur lors de la création')
+      const payload = error.response?.data
+      const firstVal =
+        Array.isArray(payload?.errors) && payload.errors[0]?.msg
+          ? payload.errors[0].msg
+          : null
+      toast.error(firstVal || payload?.message || 'Erreur lors de la création')
     } finally {
       setLoading(false)
     }
