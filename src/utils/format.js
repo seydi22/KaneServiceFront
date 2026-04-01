@@ -45,7 +45,13 @@ export const formatOperationMontantResume = (op) => {
   if (op.service === 'Change' && (op.categorie === 'Vente' || op.categorie === 'Achat')) {
     const d = op.deviseChange || '—'
     const deviseExt =
-      d === 'USD' ? 'USD ($)' : d === 'EUR' ? 'EUR (€)' : d === 'XOF' ? 'XOF (FCFA)' : String(d)
+      d === 'USD'
+        ? 'USD ($)'
+        : d === 'EUR'
+          ? 'EUR (€)'
+          : d === 'XOF' || d === 'FCFA'
+            ? 'XOF (FCFA)'
+            : String(d)
     const ext = op.montantDeviseEtrangere != null
       ? `${new Intl.NumberFormat('fr-FR').format(Number(op.montantDeviseEtrangere))} ${deviseExt}`
       : '—'

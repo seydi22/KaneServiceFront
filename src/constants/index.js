@@ -19,7 +19,7 @@ export const CATEGORIES = {
 export const CATEGORIES_CHANGE_FOREX = ['Vente', 'Achat']
 
 /** Devises proposées pour le montant « étranger » du Change (Vente/Achat) */
-export const DEVISES_CHANGE_FOREX = ['EUR', 'USD', 'XOF']
+export const DEVISES_CHANGE_FOREX = ['EUR', 'USD', 'XOF', 'FCFA']
 
 // Catégories qui nécessitent montantRecu, montantEnvoye, deviseRecu et deviseEnvoye
 export const CATEGORIES_WITH_TRANSFER = [

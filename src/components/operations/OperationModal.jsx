@@ -370,7 +370,7 @@ const OperationModal = ({ open, onClose, onSuccess }) => {
                       <span>Dollar ($)</span>
                     </Box>
                   </MenuItem>
-                  <MenuItem value="XOF">
+                  <MenuItem value="FCFA">
                     <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.5 }}>
                       <Box
                         component="img"
